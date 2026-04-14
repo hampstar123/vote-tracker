@@ -11,8 +11,8 @@
   header { background: #1a1a1a; padding: 16px 20px 0; border-bottom: 1px solid #2e2e2e; position: sticky; top: 0; z-index: 100; }
   header h1 { font-size: 20px; font-weight: 600; margin-bottom: 12px; color: #f0f0f0; }
 
-  .tabs { display: flex; gap: 0; }
-  .tab { flex: 1; padding: 10px 4px; font-size: 13px; font-weight: 500; text-align: center; border: none; background: none; color: #6e6e73; border-bottom: 2px solid transparent; cursor: pointer; }
+  .tabs { display: flex; gap: 0; overflow-x: auto; }
+  .tab { flex: 1; min-width: 60px; padding: 10px 4px; font-size: 13px; font-weight: 500; text-align: center; border: none; background: none; color: #6e6e73; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
   .tab.active { color: #4da3ff; border-bottom: 2px solid #4da3ff; }
 
   .panel { display: none; padding: 16px; }
@@ -31,9 +31,6 @@
   .btn { display: block; width: 100%; padding: 13px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; margin-top: 14px; }
   .btn-primary { background: #4da3ff; color: #000; }
   .btn-primary:active { background: #2e8fff; }
-  .btn-danger { background: #ff453a; color: #fff; }
-  .btn-sm { display: inline-block; width: auto; padding: 6px 14px; font-size: 13px; font-weight: 500; border-radius: 8px; margin-top: 0; }
-  .btn-outline { background: #2c2c2e; color: #f0f0f0; border: 1px solid #3a3a3c; }
 
   .msg { font-size: 13px; color: #8e8e93; text-align: center; margin-top: 10px; min-height: 18px; }
   .msg.success { color: #30d158; }
@@ -65,19 +62,33 @@
   .roster-item:last-child { border-bottom: none; }
   .roster-name { font-size: 14px; flex: 1; color: #f0f0f0; }
   .roster-voted { font-size: 12px; font-weight: 600; color: #30d158; }
-
   .remove-btn { background: none; border: none; color: #ff453a; font-size: 22px; cursor: pointer; padding: 0 4px; line-height: 1; }
 
   .empty { text-align: center; color: #6e6e73; font-size: 14px; padding: 24px 0; }
-
   .spinner { text-align: center; padding: 32px; color: #6e6e73; font-size: 14px; }
 
   canvas { display: block; margin: 0 auto; }
   .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 14px; color: #f0f0f0; }
   .legend-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
-
   .search-box { margin-bottom: 12px; }
   .participation { font-size: 13px; color: #8e8e93; text-align: center; margin-top: 4px; }
+
+  /* Swing tab styles */
+  .swing-summary { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .swing-metric { flex: 1; min-width: 70px; background: #1c1c1e; border: 1px solid #2e2e2e; border-radius: 10px; padding: 10px 8px; text-align: center; }
+  .swing-metric-label { font-size: 11px; color: #8e8e93; margin-bottom: 3px; }
+  .swing-metric-val { font-size: 22px; font-weight: 700; }
+  .swing-legend { display: flex; gap: 14px; font-size: 12px; color: #8e8e93; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+  .swing-legend span { display: flex; align-items: center; gap: 5px; }
+  .swing-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .swing-row { display: flex; align-items: center; padding: 11px 0; border-bottom: 1px solid #2e2e2e; gap: 10px; }
+  .swing-row:last-child { border-bottom: none; }
+  .swing-name { font-size: 14px; font-weight: 500; color: #f0f0f0; flex: 1; }
+  .swing-comment { font-size: 12px; color: #8e8e93; font-style: italic; margin-top: 2px; }
+  .swing-btns { display: flex; gap: 8px; flex-shrink: 0; }
+  .swing-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #3a3a3c; background: #2c2c2e; cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: #6e6e73; }
+  .swing-btn.likely { background: #1a3d1a; border-color: #30d158; color: #30d158; }
+  .swing-btn.unlikely { background: #3d1a1a; border-color: #ff453a; color: #ff453a; }
 </style>
 </head>
 <body>
@@ -88,6 +99,7 @@
     <button class="tab active" onclick="switchTab('entry', this)">Entry</button>
     <button class="tab" onclick="switchTab('roster', this)">Roster</button>
     <button class="tab" onclick="switchTab('report', this)">Report</button>
+    <button class="tab" onclick="switchTab('swing', this)">Swing</button>
   </div>
 </header>
 
@@ -110,7 +122,6 @@
     <button class="btn btn-primary" onclick="addVote()">Add vote</button>
     <div class="msg" id="entryMsg"></div>
   </div>
-
   <div class="card">
     <div class="card-title">Votes entered</div>
     <div id="entryList"><div class="spinner">Loading...</div></div>
@@ -152,6 +163,19 @@
   </div>
 </div>
 
+<!-- SWING TAB -->
+<div id="swing" class="panel">
+  <div class="swing-summary" id="swingSummary"></div>
+  <div class="card">
+    <div class="swing-legend">
+      <span><span class="swing-dot" style="background:#30d158"></span>Likely to swing</span>
+      <span><span class="swing-dot" style="background:#ff453a"></span>Unlikely to swing</span>
+      <span><span class="swing-dot" style="background:#3a3a3c"></span>Still unknown</span>
+    </div>
+    <div id="swingList"><div class="spinner">Loading...</div></div>
+  </div>
+</div>
+
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzbGMqPfET5eVbOUYxr5wE8TJ5JdHQbFg3xVaPb9Cvinm6GfUcmmgy4SKv2j0p53v0/exec";
 const COLORS = { RM:'#4caf50', DB:'#2e7d32', AZ:'#e53935', Ukn:'#f9a825' };
@@ -159,7 +183,7 @@ const LABELS = { RM:'RM', DB:'DB', AZ:'AZ', Ukn:'Unknown' };
 
 let roster = [];
 let votes = [];
-let loading = false;
+let swingStatus = {};
 
 async function apiFetch(params) {
   const url = API + '?' + new URLSearchParams(params);
@@ -168,10 +192,7 @@ async function apiFetch(params) {
 }
 
 async function apiPost(body) {
-  const r = await fetch(API, {
-    method: 'POST',
-    body: JSON.stringify(body)
-  });
+  const r = await fetch(API, { method: 'POST', body: JSON.stringify(body) });
   return r.json();
 }
 
@@ -183,6 +204,7 @@ async function loadAll() {
     buildVoterSelect();
     renderEntryList();
     renderRoster();
+    renderSwing();
   } catch(e) {
     showMsg('entryMsg', 'Connection error. Check internet.', 'error');
   }
@@ -196,7 +218,7 @@ function buildVoterSelect() {
   roster.forEach(n => {
     const opt = document.createElement('option');
     opt.value = n;
-    opt.textContent = voted.includes(n) ? n + ' ✓' : n;
+    opt.textContent = voted.includes(n) ? n + ' \u2713' : n;
     if (n === cur) opt.selected = true;
     sel.appendChild(opt);
   });
@@ -256,7 +278,7 @@ function renderEntryList() {
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         ${badgeFor(v.choice)}
-        <button class="remove-btn" onclick="removeVote('${v.name.replace(/'/g,"\\'")}')">×</button>
+        <button class="remove-btn" onclick="removeVote('${v.name.replace(/'/g,"\\'")}')">&#215;</button>
       </div>
     </div>`).join('');
 }
@@ -277,9 +299,7 @@ async function addPerson() {
 
 async function removePerson(name) {
   const hasVote = votes.some(v => v.name === name);
-  const msg = hasVote
-    ? `${name} has a vote recorded. Remove them and their vote?`
-    : `Remove ${name} from the roster?`;
+  const msg = hasVote ? `${name} has a vote recorded. Remove them and their vote?` : `Remove ${name} from the roster?`;
   if (!confirm(msg)) return;
   if (hasVote) await apiPost({ action: 'removeVote', name });
   await apiPost({ action: 'removePerson', name });
@@ -289,10 +309,9 @@ async function removePerson(name) {
 function renderRoster() {
   const search = (document.getElementById('rosterSearch').value || '').toLowerCase();
   const filtered = roster.filter(n => n.toLowerCase().includes(search));
-  const voted = votes.map(v => v.name);
   const el = document.getElementById('rosterList');
   if (!filtered.length) { el.innerHTML = '<div class="empty">No matches.</div>'; return; }
-  el.innerHTML = `<div style="font-size:13px;color:#8e8e93;margin-bottom:8px">${roster.length} people · ${votes.length} voted</div>` +
+  el.innerHTML = `<div style="font-size:13px;color:#8e8e93;margin-bottom:8px">${roster.length} people &middot; ${votes.length} voted</div>` +
     filtered.map(n => {
       const v = votes.find(x => x.name === n);
       return `<div class="roster-item">
@@ -300,9 +319,47 @@ function renderRoster() {
           <div class="roster-name">${n}</div>
           ${v ? `<div class="roster-voted">Voted: ${v.choice}</div>` : ''}
         </div>
-        <button class="remove-btn" onclick="removePerson('${n.replace(/'/g,"\\'")}')">×</button>
+        <button class="remove-btn" onclick="removePerson('${n.replace(/'/g,"\\'")}')">&#215;</button>
       </div>`;
     }).join('');
+}
+
+function setSwing(name, status) {
+  swingStatus[name] = (swingStatus[name] === status) ? '' : status;
+  renderSwing();
+}
+
+function renderSwing() {
+  const unknownVoters = votes.filter(v => v.choice === 'Ukn');
+  const likely = unknownVoters.filter(v => swingStatus[v.name] === 'likely').length;
+  const unlikely = unknownVoters.filter(v => swingStatus[v.name] === 'unlikely').length;
+  const stillUnknown = unknownVoters.length - likely - unlikely;
+
+  document.getElementById('swingSummary').innerHTML = `
+    <div class="swing-metric"><div class="swing-metric-label">Unknown</div><div class="swing-metric-val" style="color:#ffd60a">${unknownVoters.length}</div></div>
+    <div class="swing-metric"><div class="swing-metric-label">Likely</div><div class="swing-metric-val" style="color:#30d158">${likely}</div></div>
+    <div class="swing-metric"><div class="swing-metric-label">Unlikely</div><div class="swing-metric-val" style="color:#ff453a">${unlikely}</div></div>
+    <div class="swing-metric"><div class="swing-metric-label">Still TBD</div><div class="swing-metric-val" style="color:#8e8e93">${stillUnknown}</div></div>`;
+
+  const el = document.getElementById('swingList');
+  if (!unknownVoters.length) {
+    el.innerHTML = '<div class="empty">No unknown votes recorded yet.</div>';
+    return;
+  }
+  const sorted = [...unknownVoters].sort((a,b) => a.name.localeCompare(b.name));
+  el.innerHTML = sorted.map(v => {
+    const status = swingStatus[v.name] || '';
+    return `<div class="swing-row">
+      <div style="flex:1">
+        <div class="swing-name">${v.name}</div>
+        ${v.comment ? `<div class="swing-comment">"${v.comment}"</div>` : ''}
+      </div>
+      <div class="swing-btns">
+        <button class="swing-btn ${status === 'likely' ? 'likely' : ''}" onclick="setSwing('${v.name.replace(/'/g,"\\'")}','likely')" title="Likely">&#10003;</button>
+        <button class="swing-btn ${status === 'unlikely' ? 'unlikely' : ''}" onclick="setSwing('${v.name.replace(/'/g,"\\'")}','unlikely')" title="Unlikely">&#10007;</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderReport() {
@@ -356,7 +413,7 @@ function drawPie(counts, total) {
   const legend = document.getElementById('legend');
   legend.innerHTML = '';
   if (!total) {
-    ctx.fillStyle = '#e5e5ea'; ctx.beginPath(); ctx.arc(110,110,100,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#2c2c2e'; ctx.beginPath(); ctx.arc(110,110,100,0,Math.PI*2); ctx.fill();
     ctx.fillStyle = '#8e8e93'; ctx.font = '14px -apple-system'; ctx.textAlign = 'center'; ctx.fillText('No data', 110, 115);
     return;
   }
@@ -371,13 +428,12 @@ function drawPie(counts, total) {
   ctx.beginPath(); ctx.arc(110,110,48,0,Math.PI*2); ctx.fillStyle = '#1c1c1e'; ctx.fill();
   ctx.fillStyle = '#f0f0f0'; ctx.font = 'bold 22px -apple-system'; ctx.textAlign = 'center'; ctx.fillText(total, 110, 106);
   ctx.fillStyle = '#8e8e93'; ctx.font = '13px -apple-system'; ctx.fillText('votes', 110, 124);
-
   Object.keys(counts).forEach(k => {
     if (!counts[k]) return;
     const p = Math.round(counts[k]/total*100);
     const item = document.createElement('div');
     item.className = 'legend-item';
-    item.innerHTML = `<div class="legend-dot" style="background:${COLORS[k]}"></div><span>${LABELS[k]} — ${counts[k]} vote${counts[k]!==1?'s':''} (${p}%)</span>`;
+    item.innerHTML = `<div class="legend-dot" style="background:${COLORS[k]}"></div><span>${LABELS[k]} &mdash; ${counts[k]} vote${counts[k]!==1?'s':''} (${p}%)</span>`;
     legend.appendChild(item);
   });
 }
@@ -388,6 +444,7 @@ function switchTab(t, el) {
   document.getElementById(t).classList.add('active');
   el.classList.add('active');
   if (t === 'report') renderReport();
+  if (t === 'swing') renderSwing();
 }
 
 loadAll();
