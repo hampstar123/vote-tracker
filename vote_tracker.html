@@ -79,19 +79,19 @@
   .swing-metric-val { font-size: 22px; font-weight: 700; }
 
   .proj-section-label { font-size: 12px; font-weight: 600; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
-  .proj-grid { display: flex; gap: 8px; margin-bottom: 14px; }
+  .proj-grid { display: flex; gap: 8px; margin-bottom: 10px; }
   .proj-metric { flex: 1; border-radius: 10px; padding: 12px 8px; text-align: center; }
   .proj-metric-label { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
   .proj-metric-val { font-size: 24px; font-weight: 700; }
-  .proj-rm { background: #1a3d1a; border: 1px solid #30d158; }
-  .proj-rm .proj-metric-label { color: #30d158; }
-  .proj-rm .proj-metric-val { color: #4cde4c; }
-  .proj-az { background: #3d1a1a; border: 1px solid #ff453a; }
-  .proj-az .proj-metric-label { color: #ff6b6b; }
-  .proj-az .proj-metric-val { color: #ff6b6b; }
+  .proj-rm  { background: #1a3d1a; border: 1px solid #30d158; }
+  .proj-rm  .proj-metric-label { color: #30d158; }
+  .proj-rm  .proj-metric-val   { color: #4cde4c; }
+  .proj-az  { background: #3d1a1a; border: 1px solid #ff453a; }
+  .proj-az  .proj-metric-label { color: #ff6b6b; }
+  .proj-az  .proj-metric-val   { color: #ff6b6b; }
   .proj-ukn { background: #2a2200; border: 1px solid #ffd60a; }
   .proj-ukn .proj-metric-label { color: #ffd60a; }
-  .proj-ukn .proj-metric-val { color: #ffd60a; }
+  .proj-ukn .proj-metric-val   { color: #ffd60a; }
 
   .swing-legend { display: flex; gap: 14px; font-size: 12px; color: #8e8e93; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
   .swing-legend span { display: flex; align-items: center; gap: 5px; }
@@ -102,10 +102,9 @@
   .swing-comment { font-size: 12px; color: #8e8e93; font-style: italic; margin-top: 2px; }
   .swing-btns { display: flex; gap: 8px; flex-shrink: 0; }
   .swing-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #3a3a3c; background: #2c2c2e; cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: #6e6e73; }
-  .swing-btn.likely { background: #1a3d1a; border-color: #30d158; color: #30d158; }
+  .swing-btn.likely   { background: #1a3d1a; border-color: #30d158; color: #30d158; }
   .swing-btn.unlikely { background: #3d1a1a; border-color: #ff453a; color: #ff453a; }
-
-  .divider { border: none; border-top: 1px solid #2e2e2e; margin: 14px 0; }
+  .lean-btn { flex: 1; padding: 5px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #3a3a3c; background: #2c2c2e; color: #8e8e93; }
 </style>
 </head>
 <body>
@@ -181,22 +180,16 @@
 
 <!-- SWING TAB -->
 <div id="swing" class="panel">
-
-  <!-- Status summary -->
   <div class="swing-row-metrics" id="swingSummary"></div>
-
-  <!-- Projected results -->
   <div class="card">
     <div class="proj-section-label">&#128202; Projected result (with swing)</div>
     <div class="proj-grid" id="projGrid"></div>
-    <div style="font-size:11px;color:#6e6e73;text-align:center;margin-top:-6px">Likely swings counted toward RM or AZ based on original comment. Unknown swings stay as Unknown.</div>
+    <div style="font-size:11px;color:#6e6e73;text-align:center;margin-top:2px">Likely swings counted toward RM or AZ based on lean. Unmarked stay as Unknown.</div>
   </div>
-
-  <!-- Voter list -->
   <div class="card">
     <div class="swing-legend">
-      <span><span class="swing-dot" style="background:#30d158"></span>Likely to swing</span>
-      <span><span class="swing-dot" style="background:#ff453a"></span>Unlikely to swing</span>
+      <span><span class="swing-dot" style="background:#30d158"></span>Likely</span>
+      <span><span class="swing-dot" style="background:#ff453a"></span>Unlikely</span>
       <span><span class="swing-dot" style="background:#3a3a3c"></span>Still unknown</span>
     </div>
     <div id="swingList"><div class="spinner">Loading...</div></div>
@@ -210,7 +203,7 @@ const LABELS = { RM:'RM', AZ:'AZ', Ukn:'Unknown' };
 
 let roster = [];
 let votes = [];
-let swingStatus = {};  // name -> { status: 'likely'|'unlikely'|'', leanTo: 'RM'|'AZ'|'' }
+let swingStatus = {};
 
 async function apiFetch(params) {
   const url = API + '?' + new URLSearchParams(params);
@@ -228,6 +221,11 @@ async function loadAll() {
     const data = await apiFetch({ action: 'getAll' });
     roster = (data.roster || []).sort();
     votes = data.votes || [];
+    // Load saved swing status from sheet
+    swingStatus = {};
+    (data.swing || []).forEach(s => {
+      swingStatus[s.name] = { status: s.status || '', leanTo: s.leanTo || '' };
+    });
     buildVoterSelect();
     renderEntryList();
     renderRoster();
@@ -252,10 +250,8 @@ function buildVoterSelect() {
 }
 
 function badgeFor(v) {
-  const key = (v === 'DB') ? 'RM' : v; // treat any legacy DB votes as RM for display
-  const cls = key.toLowerCase();
-  const lbl = LABELS[key] || key;
-  return `<span class="badge badge-${cls}">${lbl}</span>`;
+  const key = (v === 'DB') ? 'RM' : v;
+  return `<span class="badge badge-${key.toLowerCase()}">${LABELS[key] || key}</span>`;
 }
 
 function showMsg(id, text, type='') {
@@ -269,21 +265,19 @@ async function addVote() {
   const name = document.getElementById('voterName').value;
   const choice = document.getElementById('voteChoice').value;
   const comment = document.getElementById('voteComment').value.trim();
-  if (!name) { showMsg('entryMsg', 'Please select a voter.', 'error'); return; }
-  if (!choice) { showMsg('entryMsg', 'Please select a vote.', 'error'); return; }
+  if (!name)   { showMsg('entryMsg', 'Please select a voter.', 'error'); return; }
+  if (!choice) { showMsg('entryMsg', 'Please select a vote.',  'error'); return; }
   const existing = votes.find(v => v.name === name);
   if (existing && !confirm(`${name} already voted. Replace their vote?`)) return;
   showMsg('entryMsg', 'Saving...');
   try {
     await apiPost({ action: 'addVote', name, choice, comment });
-    document.getElementById('voterName').value = '';
+    document.getElementById('voterName').value  = '';
     document.getElementById('voteChoice').value = '';
     document.getElementById('voteComment').value = '';
     await loadAll();
     showMsg('entryMsg', `Vote saved for ${name}!`, 'success');
-  } catch(e) {
-    showMsg('entryMsg', 'Error saving. Try again.', 'error');
-  }
+  } catch(e) { showMsg('entryMsg', 'Error saving. Try again.', 'error'); }
 }
 
 async function removeVote(name) {
@@ -291,9 +285,7 @@ async function removeVote(name) {
   try {
     await apiPost({ action: 'removeVote', name });
     await loadAll();
-  } catch(e) {
-    showMsg('entryMsg', 'Error removing. Try again.', 'error');
-  }
+  } catch(e) { showMsg('entryMsg', 'Error removing. Try again.', 'error'); }
 }
 
 function renderEntryList() {
@@ -322,15 +314,12 @@ async function addPerson() {
     document.getElementById('newName').value = '';
     await loadAll();
     showMsg('rosterMsg', `${name} added.`, 'success');
-  } catch(e) {
-    showMsg('rosterMsg', 'Error. Try again.', 'error');
-  }
+  } catch(e) { showMsg('rosterMsg', 'Error. Try again.', 'error'); }
 }
 
 async function removePerson(name) {
   const hasVote = votes.some(v => v.name === name);
-  const msg = hasVote ? `${name} has a vote recorded. Remove them and their vote?` : `Remove ${name} from the roster?`;
-  if (!confirm(msg)) return;
+  if (!confirm(hasVote ? `${name} has a vote. Remove them and their vote?` : `Remove ${name} from the roster?`)) return;
   if (hasVote) await apiPost({ action: 'removeVote', name });
   await apiPost({ action: 'removePerson', name });
   await loadAll();
@@ -354,44 +343,41 @@ function renderRoster() {
     }).join('');
 }
 
-function setSwing(name, status) {
+async function setSwing(name, field, value) {
   if (!swingStatus[name]) swingStatus[name] = { status: '', leanTo: '' };
-  swingStatus[name].status = (swingStatus[name].status === status) ? '' : status;
+  // Toggle off if same value tapped again
+  swingStatus[name][field] = (swingStatus[name][field] === value) ? '' : value;
+  // If marked unlikely, clear lean direction
+  if (field === 'status' && swingStatus[name].status === 'unlikely') {
+    swingStatus[name].leanTo = '';
+  }
   renderSwing();
-}
-
-function setLean(name, lean) {
-  if (!swingStatus[name]) swingStatus[name] = { status: '', leanTo: '' };
-  swingStatus[name].leanTo = (swingStatus[name].leanTo === lean) ? '' : lean;
-  renderSwing();
+  // Save to sheet
+  const s = swingStatus[name];
+  await apiPost({ action: 'setSwing', name, status: s.status, leanTo: s.leanTo });
 }
 
 function renderSwing() {
   const unknownVoters = votes.filter(v => v.choice === 'Ukn');
-  const likely = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'likely').length;
+  const likely   = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'likely').length;
   const unlikely = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'unlikely').length;
-  const stillUnknown = unknownVoters.length - likely - unlikely;
+  const stillTBD = unknownVoters.length - likely - unlikely;
 
-  // Summary boxes
   document.getElementById('swingSummary').innerHTML = `
     <div class="swing-metric"><div class="swing-metric-label">Unknown</div><div class="swing-metric-val" style="color:#ffd60a">${unknownVoters.length}</div></div>
     <div class="swing-metric"><div class="swing-metric-label">Likely</div><div class="swing-metric-val" style="color:#30d158">${likely}</div></div>
     <div class="swing-metric"><div class="swing-metric-label">Unlikely</div><div class="swing-metric-val" style="color:#ff453a">${unlikely}</div></div>
-    <div class="swing-metric"><div class="swing-metric-label">Still TBD</div><div class="swing-metric-val" style="color:#8e8e93">${stillUnknown}</div></div>`;
+    <div class="swing-metric"><div class="swing-metric-label">Still TBD</div><div class="swing-metric-val" style="color:#8e8e93">${stillTBD}</div></div>`;
 
-  // Projected results
-  const baseRM = votes.filter(v => v.choice === 'RM').length;
-  const baseAZ = votes.filter(v => v.choice === 'AZ').length;
-  let projRM = baseRM, projAZ = baseAZ, projUkn = 0;
+  // Projected totals
+  let projRM  = votes.filter(v => v.choice === 'RM' || v.choice === 'DB').length;
+  let projAZ  = votes.filter(v => v.choice === 'AZ').length;
+  let projUkn = 0;
   unknownVoters.forEach(v => {
     const s = swingStatus[v.name] || {};
-    if (s.status === 'likely') {
-      if (s.leanTo === 'RM') projRM++;
-      else if (s.leanTo === 'AZ') projAZ++;
-      else projUkn++;
-    } else {
-      projUkn++;
-    }
+    if (s.status === 'likely' && s.leanTo === 'RM')      projRM++;
+    else if (s.status === 'likely' && s.leanTo === 'AZ') projAZ++;
+    else projUkn++;
   });
 
   document.getElementById('projGrid').innerHTML = `
@@ -399,28 +385,32 @@ function renderSwing() {
     <div class="proj-metric proj-az"><div class="proj-metric-label">AZ</div><div class="proj-metric-val">${projAZ}</div></div>
     <div class="proj-metric proj-ukn"><div class="proj-metric-label">Unknown</div><div class="proj-metric-val">${projUkn}</div></div>`;
 
-  // Voter list
   const el = document.getElementById('swingList');
-  if (!unknownVoters.length) {
-    el.innerHTML = '<div class="empty">No unknown votes recorded yet.</div>';
-    return;
-  }
+  if (!unknownVoters.length) { el.innerHTML = '<div class="empty">No unknown votes yet.</div>'; return; }
+
   const sorted = [...unknownVoters].sort((a,b) => a.name.localeCompare(b.name));
   el.innerHTML = sorted.map(v => {
     const s = swingStatus[v.name] || { status: '', leanTo: '' };
     const isLikely = s.status === 'likely';
+    const safeName = v.name.replace(/'/g,"\\'");
     return `<div class="swing-row">
       <div style="flex:1">
         <div class="swing-name">${v.name}</div>
         ${v.comment ? `<div class="swing-comment">"${v.comment}"</div>` : ''}
-        ${isLikely ? `<div style="display:flex;gap:6px;margin-top:6px">
-          <button onclick="setLean('${v.name.replace(/'/g,"\\'")}','RM')" style="flex:1;padding:5px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid ${s.leanTo==='RM'?'#30d158':'#3a3a3c'};background:${s.leanTo==='RM'?'#1a3d1a':'#2c2c2e'};color:${s.leanTo==='RM'?'#30d158':'#8e8e93'}">&#8594; RM</button>
-          <button onclick="setLean('${v.name.replace(/'/g,"\\'")}','AZ')" style="flex:1;padding:5px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid ${s.leanTo==='AZ'?'#ff453a':'#3a3a3c'};background:${s.leanTo==='AZ'?'#3d1a1a':'#2c2c2e'};color:${s.leanTo==='AZ'?'#ff6b6b':'#8e8e93'}">&#8594; AZ</button>
+        ${isLikely ? `<div style="display:flex;gap:6px;margin-top:8px">
+          <button class="lean-btn" onclick="setSwing('${safeName}','leanTo','RM')"
+            style="border-color:${s.leanTo==='RM'?'#30d158':'#3a3a3c'};background:${s.leanTo==='RM'?'#1a3d1a':'#2c2c2e'};color:${s.leanTo==='RM'?'#30d158':'#8e8e93'}">
+            &#8594; RM
+          </button>
+          <button class="lean-btn" onclick="setSwing('${safeName}','leanTo','AZ')"
+            style="border-color:${s.leanTo==='AZ'?'#ff453a':'#3a3a3c'};background:${s.leanTo==='AZ'?'#3d1a1a':'#2c2c2e'};color:${s.leanTo==='AZ'?'#ff6b6b':'#8e8e93'}">
+            &#8594; AZ
+          </button>
         </div>` : ''}
       </div>
       <div class="swing-btns">
-        <button class="swing-btn ${s.status === 'likely' ? 'likely' : ''}" onclick="setSwing('${v.name.replace(/'/g,"\\'")}','likely')" title="Likely">&#10003;</button>
-        <button class="swing-btn ${s.status === 'unlikely' ? 'unlikely' : ''}" onclick="setSwing('${v.name.replace(/'/g,"\\'")}','unlikely')" title="Unlikely">&#10007;</button>
+        <button class="swing-btn ${s.status==='likely'?'likely':''}"   onclick="setSwing('${safeName}','status','likely')"   title="Likely">&#10003;</button>
+        <button class="swing-btn ${s.status==='unlikely'?'unlikely':''}" onclick="setSwing('${safeName}','status','unlikely')" title="Unlikely">&#10007;</button>
       </div>
     </div>`;
   }).join('');
@@ -511,7 +501,7 @@ function switchTab(t, el) {
   document.getElementById(t).classList.add('active');
   el.classList.add('active');
   if (t === 'report') renderReport();
-  if (t === 'swing') renderSwing();
+  if (t === 'swing')  renderSwing();
 }
 
 loadAll();
