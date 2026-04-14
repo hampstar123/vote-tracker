@@ -43,7 +43,6 @@
 
   .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
   .badge-rm  { background: #1a3d1a; color: #4cde4c; }
-  .badge-db  { background: #0f2e0f; color: #30d158; }
   .badge-az  { background: #3d1a1a; color: #ff6b6b; }
   .badge-ukn { background: #3d2e00; color: #ffd60a; }
 
@@ -73,11 +72,27 @@
   .search-box { margin-bottom: 12px; }
   .participation { font-size: 13px; color: #8e8e93; text-align: center; margin-top: 4px; }
 
-  /* Swing tab styles */
-  .swing-summary { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  /* Swing tab */
+  .swing-row-metrics { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
   .swing-metric { flex: 1; min-width: 70px; background: #1c1c1e; border: 1px solid #2e2e2e; border-radius: 10px; padding: 10px 8px; text-align: center; }
   .swing-metric-label { font-size: 11px; color: #8e8e93; margin-bottom: 3px; }
   .swing-metric-val { font-size: 22px; font-weight: 700; }
+
+  .proj-section-label { font-size: 12px; font-weight: 600; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
+  .proj-grid { display: flex; gap: 8px; margin-bottom: 14px; }
+  .proj-metric { flex: 1; border-radius: 10px; padding: 12px 8px; text-align: center; }
+  .proj-metric-label { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+  .proj-metric-val { font-size: 24px; font-weight: 700; }
+  .proj-rm { background: #1a3d1a; border: 1px solid #30d158; }
+  .proj-rm .proj-metric-label { color: #30d158; }
+  .proj-rm .proj-metric-val { color: #4cde4c; }
+  .proj-az { background: #3d1a1a; border: 1px solid #ff453a; }
+  .proj-az .proj-metric-label { color: #ff6b6b; }
+  .proj-az .proj-metric-val { color: #ff6b6b; }
+  .proj-ukn { background: #2a2200; border: 1px solid #ffd60a; }
+  .proj-ukn .proj-metric-label { color: #ffd60a; }
+  .proj-ukn .proj-metric-val { color: #ffd60a; }
+
   .swing-legend { display: flex; gap: 14px; font-size: 12px; color: #8e8e93; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
   .swing-legend span { display: flex; align-items: center; gap: 5px; }
   .swing-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
@@ -89,12 +104,14 @@
   .swing-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #3a3a3c; background: #2c2c2e; cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: #6e6e73; }
   .swing-btn.likely { background: #1a3d1a; border-color: #30d158; color: #30d158; }
   .swing-btn.unlikely { background: #3d1a1a; border-color: #ff453a; color: #ff453a; }
+
+  .divider { border: none; border-top: 1px solid #2e2e2e; margin: 14px 0; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🗳️ Vote Tracker</h1>
+  <h1>&#128505; Vote Tracker</h1>
   <div class="tabs">
     <button class="tab active" onclick="switchTab('entry', this)">Entry</button>
     <button class="tab" onclick="switchTab('roster', this)">Roster</button>
@@ -111,9 +128,8 @@
     <select id="voterName"><option value="">Loading...</option></select>
     <label>Vote</label>
     <select id="voteChoice">
-      <option value="">— select —</option>
+      <option value="">&#8212; select &#8212;</option>
       <option value="RM">RM</option>
-      <option value="DB">DB</option>
       <option value="AZ">AZ</option>
       <option value="Ukn">Unknown</option>
     </select>
@@ -165,7 +181,18 @@
 
 <!-- SWING TAB -->
 <div id="swing" class="panel">
-  <div class="swing-summary" id="swingSummary"></div>
+
+  <!-- Status summary -->
+  <div class="swing-row-metrics" id="swingSummary"></div>
+
+  <!-- Projected results -->
+  <div class="card">
+    <div class="proj-section-label">&#128202; Projected result (with swing)</div>
+    <div class="proj-grid" id="projGrid"></div>
+    <div style="font-size:11px;color:#6e6e73;text-align:center;margin-top:-6px">Likely swings counted toward RM or AZ based on original comment. Unknown swings stay as Unknown.</div>
+  </div>
+
+  <!-- Voter list -->
   <div class="card">
     <div class="swing-legend">
       <span><span class="swing-dot" style="background:#30d158"></span>Likely to swing</span>
@@ -178,12 +205,12 @@
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzbGMqPfET5eVbOUYxr5wE8TJ5JdHQbFg3xVaPb9Cvinm6GfUcmmgy4SKv2j0p53v0/exec";
-const COLORS = { RM:'#4caf50', DB:'#2e7d32', AZ:'#e53935', Ukn:'#f9a825' };
-const LABELS = { RM:'RM', DB:'DB', AZ:'AZ', Ukn:'Unknown' };
+const COLORS = { RM:'#4caf50', AZ:'#e53935', Ukn:'#f9a825' };
+const LABELS = { RM:'RM', AZ:'AZ', Ukn:'Unknown' };
 
 let roster = [];
 let votes = [];
-let swingStatus = {};
+let swingStatus = {};  // name -> { status: 'likely'|'unlikely'|'', leanTo: 'RM'|'AZ'|'' }
 
 async function apiFetch(params) {
   const url = API + '?' + new URLSearchParams(params);
@@ -214,7 +241,7 @@ function buildVoterSelect() {
   const sel = document.getElementById('voterName');
   const cur = sel.value;
   const voted = votes.map(v => v.name);
-  sel.innerHTML = '<option value="">— select voter —</option>';
+  sel.innerHTML = '<option value="">&#8212; select voter &#8212;</option>';
   roster.forEach(n => {
     const opt = document.createElement('option');
     opt.value = n;
@@ -225,7 +252,10 @@ function buildVoterSelect() {
 }
 
 function badgeFor(v) {
-  return `<span class="badge badge-${v.toLowerCase()}">${LABELS[v]}</span>`;
+  const key = (v === 'DB') ? 'RM' : v; // treat any legacy DB votes as RM for display
+  const cls = key.toLowerCase();
+  const lbl = LABELS[key] || key;
+  return `<span class="badge badge-${cls}">${lbl}</span>`;
 }
 
 function showMsg(id, text, type='') {
@@ -325,22 +355,51 @@ function renderRoster() {
 }
 
 function setSwing(name, status) {
-  swingStatus[name] = (swingStatus[name] === status) ? '' : status;
+  if (!swingStatus[name]) swingStatus[name] = { status: '', leanTo: '' };
+  swingStatus[name].status = (swingStatus[name].status === status) ? '' : status;
+  renderSwing();
+}
+
+function setLean(name, lean) {
+  if (!swingStatus[name]) swingStatus[name] = { status: '', leanTo: '' };
+  swingStatus[name].leanTo = (swingStatus[name].leanTo === lean) ? '' : lean;
   renderSwing();
 }
 
 function renderSwing() {
   const unknownVoters = votes.filter(v => v.choice === 'Ukn');
-  const likely = unknownVoters.filter(v => swingStatus[v.name] === 'likely').length;
-  const unlikely = unknownVoters.filter(v => swingStatus[v.name] === 'unlikely').length;
+  const likely = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'likely').length;
+  const unlikely = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'unlikely').length;
   const stillUnknown = unknownVoters.length - likely - unlikely;
 
+  // Summary boxes
   document.getElementById('swingSummary').innerHTML = `
     <div class="swing-metric"><div class="swing-metric-label">Unknown</div><div class="swing-metric-val" style="color:#ffd60a">${unknownVoters.length}</div></div>
     <div class="swing-metric"><div class="swing-metric-label">Likely</div><div class="swing-metric-val" style="color:#30d158">${likely}</div></div>
     <div class="swing-metric"><div class="swing-metric-label">Unlikely</div><div class="swing-metric-val" style="color:#ff453a">${unlikely}</div></div>
     <div class="swing-metric"><div class="swing-metric-label">Still TBD</div><div class="swing-metric-val" style="color:#8e8e93">${stillUnknown}</div></div>`;
 
+  // Projected results
+  const baseRM = votes.filter(v => v.choice === 'RM').length;
+  const baseAZ = votes.filter(v => v.choice === 'AZ').length;
+  let projRM = baseRM, projAZ = baseAZ, projUkn = 0;
+  unknownVoters.forEach(v => {
+    const s = swingStatus[v.name] || {};
+    if (s.status === 'likely') {
+      if (s.leanTo === 'RM') projRM++;
+      else if (s.leanTo === 'AZ') projAZ++;
+      else projUkn++;
+    } else {
+      projUkn++;
+    }
+  });
+
+  document.getElementById('projGrid').innerHTML = `
+    <div class="proj-metric proj-rm"><div class="proj-metric-label">RM</div><div class="proj-metric-val">${projRM}</div></div>
+    <div class="proj-metric proj-az"><div class="proj-metric-label">AZ</div><div class="proj-metric-val">${projAZ}</div></div>
+    <div class="proj-metric proj-ukn"><div class="proj-metric-label">Unknown</div><div class="proj-metric-val">${projUkn}</div></div>`;
+
+  // Voter list
   const el = document.getElementById('swingList');
   if (!unknownVoters.length) {
     el.innerHTML = '<div class="empty">No unknown votes recorded yet.</div>';
@@ -348,15 +407,20 @@ function renderSwing() {
   }
   const sorted = [...unknownVoters].sort((a,b) => a.name.localeCompare(b.name));
   el.innerHTML = sorted.map(v => {
-    const status = swingStatus[v.name] || '';
+    const s = swingStatus[v.name] || { status: '', leanTo: '' };
+    const isLikely = s.status === 'likely';
     return `<div class="swing-row">
       <div style="flex:1">
         <div class="swing-name">${v.name}</div>
         ${v.comment ? `<div class="swing-comment">"${v.comment}"</div>` : ''}
+        ${isLikely ? `<div style="display:flex;gap:6px;margin-top:6px">
+          <button onclick="setLean('${v.name.replace(/'/g,"\\'")}','RM')" style="flex:1;padding:5px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid ${s.leanTo==='RM'?'#30d158':'#3a3a3c'};background:${s.leanTo==='RM'?'#1a3d1a':'#2c2c2e'};color:${s.leanTo==='RM'?'#30d158':'#8e8e93'}">&#8594; RM</button>
+          <button onclick="setLean('${v.name.replace(/'/g,"\\'")}','AZ')" style="flex:1;padding:5px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid ${s.leanTo==='AZ'?'#ff453a':'#3a3a3c'};background:${s.leanTo==='AZ'?'#3d1a1a':'#2c2c2e'};color:${s.leanTo==='AZ'?'#ff6b6b':'#8e8e93'}">&#8594; AZ</button>
+        </div>` : ''}
       </div>
       <div class="swing-btns">
-        <button class="swing-btn ${status === 'likely' ? 'likely' : ''}" onclick="setSwing('${v.name.replace(/'/g,"\\'")}','likely')" title="Likely">&#10003;</button>
-        <button class="swing-btn ${status === 'unlikely' ? 'unlikely' : ''}" onclick="setSwing('${v.name.replace(/'/g,"\\'")}','unlikely')" title="Unlikely">&#10007;</button>
+        <button class="swing-btn ${s.status === 'likely' ? 'likely' : ''}" onclick="setSwing('${v.name.replace(/'/g,"\\'")}','likely')" title="Likely">&#10003;</button>
+        <button class="swing-btn ${s.status === 'unlikely' ? 'unlikely' : ''}" onclick="setSwing('${v.name.replace(/'/g,"\\'")}','unlikely')" title="Unlikely">&#10007;</button>
       </div>
     </div>`;
   }).join('');
@@ -364,8 +428,11 @@ function renderSwing() {
 
 function renderReport() {
   const total = votes.length;
-  const counts = { RM:0, DB:0, AZ:0, Ukn:0 };
-  votes.forEach(v => counts[v.choice]++);
+  const counts = { RM:0, AZ:0, Ukn:0 };
+  votes.forEach(v => {
+    const key = (v.choice === 'DB') ? 'RM' : v.choice;
+    if (counts[key] !== undefined) counts[key]++;
+  });
   const pct = total ? Math.round(votes.length / Math.max(roster.length,1) * 100) : 0;
 
   document.getElementById('summaryCards').innerHTML = `
@@ -385,7 +452,7 @@ function renderReport() {
     bd.innerHTML = Object.keys(counts).map(k => {
       const p = total ? Math.round(counts[k]/total*100) : 0;
       return `<div class="bar-row">
-        <div class="bar-label"><span>${badgeFor(k)}</span><span style="font-weight:600">${counts[k]} &nbsp;${p}%</span></div>
+        <div class="bar-label"><span class="badge badge-${k.toLowerCase()}">${LABELS[k]}</span><span style="font-weight:600">${counts[k]} &nbsp;${p}%</span></div>
         <div class="bar-track"><div class="bar-fill" style="background:${COLORS[k]};width:${p}%"></div></div>
       </div>`;
     }).join('');
