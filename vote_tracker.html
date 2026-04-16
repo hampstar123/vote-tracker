@@ -189,8 +189,7 @@
   </div>
   <div class="card">
     <div class="swing-legend">
-      <span><span class="swing-dot" style="background:#30d158"></span>Likely</span>
-      <span><span class="swing-dot" style="background:#ff453a"></span>Unlikely</span>
+      <span><span class="swing-dot" style="background:#30d158"></span>Likely to swing</span>
       <span><span class="swing-dot" style="background:#3a3a3c"></span>Still unknown</span>
     </div>
     <div id="swingList"><div class="spinner">Loading...</div></div>
@@ -360,14 +359,15 @@ async function setSwing(name, field, value) {
 
 function renderSwing() {
   const unknownVoters = votes.filter(v => v.choice === 'Ukn');
+  const likelyRM = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'likely' && swingStatus[v.name].leanTo === 'RM').length;
+  const likelyAZ = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'likely' && swingStatus[v.name].leanTo === 'AZ').length;
   const likely   = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'likely').length;
-  const unlikely = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'unlikely').length;
-  const stillTBD = unknownVoters.length - likely - unlikely;
+  const stillTBD = unknownVoters.length - likely;
 
   document.getElementById('swingSummary').innerHTML = `
+    <div class="swing-metric"><div class="swing-metric-label">Likely RM</div><div class="swing-metric-val" style="color:#30d158">${likelyRM}</div></div>
+    <div class="swing-metric"><div class="swing-metric-label">Likely AZ</div><div class="swing-metric-val" style="color:#ff453a">${likelyAZ}</div></div>
     <div class="swing-metric"><div class="swing-metric-label">Unknown</div><div class="swing-metric-val" style="color:#ffd60a">${unknownVoters.length}</div></div>
-    <div class="swing-metric"><div class="swing-metric-label">Likely</div><div class="swing-metric-val" style="color:#30d158">${likely}</div></div>
-    <div class="swing-metric"><div class="swing-metric-label">Unlikely</div><div class="swing-metric-val" style="color:#ff453a">${unlikely}</div></div>
     <div class="swing-metric"><div class="swing-metric-label">Still TBD</div><div class="swing-metric-val" style="color:#8e8e93">${stillTBD}</div></div>`;
 
   // Projected totals
@@ -416,8 +416,7 @@ function renderSwing() {
         <textarea placeholder="Strategy notes..." style="width:100%;margin-top:8px;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:8px;padding:8px 10px;font-size:13px;color:#f0f0f0;font-family:inherit;resize:vertical;min-height:56px;" onblur="saveNote('${safeName}', this.value)">${s.note || ''}</textarea>
       </div>
       <div class="swing-btns" style="align-self:flex-start;margin-top:2px">
-        <button class="swing-btn ${s.status==='likely'?'likely':''}"   onclick="setSwing('${safeName}','status','likely')"   title="Likely">&#10003;</button>
-        <button class="swing-btn ${s.status==='unlikely'?'unlikely':''}" onclick="setSwing('${safeName}','status','unlikely')" title="Unlikely">&#10007;</button>
+        <button class="swing-btn ${s.status==='likely'?'likely':''}" onclick="setSwing('${safeName}','status','likely')" title="Likely to swing">&#10003;</button>
       </div>
     </div>`;
   }).join('');
