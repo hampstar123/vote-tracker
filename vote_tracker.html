@@ -10,9 +10,8 @@
 
   header { background: #1a1a1a; padding: 16px 20px 0; border-bottom: 1px solid #2e2e2e; position: sticky; top: 0; z-index: 100; }
   header h1 { font-size: 20px; font-weight: 600; margin-bottom: 12px; color: #f0f0f0; }
-
-  .tabs { display: flex; gap: 0; overflow-x: auto; }
-  .tab { flex: 1; min-width: 60px; padding: 10px 4px; font-size: 13px; font-weight: 500; text-align: center; border: none; background: none; color: #6e6e73; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+  .tabs { display: flex; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab { flex-shrink: 0; padding: 10px 12px; font-size: 12px; font-weight: 500; text-align: center; border: none; background: none; color: #6e6e73; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
   .tab.active { color: #4da3ff; border-bottom: 2px solid #4da3ff; }
 
   .panel { display: none; padding: 16px; }
@@ -23,14 +22,18 @@
 
   label { font-size: 14px; color: #8e8e93; display: block; margin-bottom: 4px; margin-top: 10px; }
   label:first-child { margin-top: 0; }
-  select, textarea, input[type=text] { width: 100%; border: 1px solid #3a3a3c; border-radius: 8px; padding: 10px 12px; font-size: 16px; background: #2c2c2e; color: #f0f0f0; font-family: inherit; appearance: none; -webkit-appearance: none; }
+  select, input[type=text], input[type=password] { width: 100%; border: 1px solid #3a3a3c; border-radius: 8px; padding: 10px 12px; font-size: 16px; background: #2c2c2e; color: #f0f0f0; font-family: inherit; appearance: none; -webkit-appearance: none; }
   select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236e6e73' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
-  textarea { min-height: 80px; resize: vertical; }
+  textarea { width: 100%; border: 1px solid #3a3a3c; border-radius: 8px; padding: 10px 12px; font-size: 15px; background: #2c2c2e; color: #f0f0f0; font-family: inherit; resize: vertical; min-height: 80px; }
   ::placeholder { color: #555; }
 
   .btn { display: block; width: 100%; padding: 13px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; margin-top: 14px; }
   .btn-primary { background: #4da3ff; color: #000; }
   .btn-primary:active { background: #2e8fff; }
+  .btn-secondary { background: #2c2c2e; color: #f0f0f0; border: 1px solid #3a3a3c; }
+  .btn-ai { background: #5e35b1; color: #fff; }
+  .btn-ai:active { background: #4527a0; }
+  .btn-sm { display: inline-block; width: auto; padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 8px; margin-top: 0; cursor: pointer; border: none; }
 
   .msg { font-size: 13px; color: #8e8e93; text-align: center; margin-top: 10px; min-height: 18px; }
   .msg.success { color: #30d158; }
@@ -72,41 +75,47 @@
   .search-box { margin-bottom: 12px; }
   .participation { font-size: 13px; color: #8e8e93; text-align: center; margin-top: 4px; }
 
-  /* Swing tab */
-  .swing-row-metrics { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  /* Swing */
+  .swing-row-metrics { display: flex; gap: 8px; flex-wrap: wrap; }
   .swing-metric { flex: 1; min-width: 70px; background: #1c1c1e; border: 1px solid #2e2e2e; border-radius: 10px; padding: 10px 8px; text-align: center; }
   .swing-metric-label { font-size: 11px; color: #8e8e93; margin-bottom: 3px; }
   .swing-metric-val { font-size: 22px; font-weight: 700; }
   .swing-metric-pct { font-size: 12px; color: #8e8e93; margin-top: 2px; }
-
-  .proj-section-label { font-size: 12px; font-weight: 600; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
-  .proj-grid { display: flex; gap: 8px; margin-bottom: 10px; }
+  .proj-grid { display: flex; gap: 8px; }
   .proj-metric { flex: 1; border-radius: 10px; padding: 12px 8px; text-align: center; }
   .proj-metric-label { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
   .proj-metric-val { font-size: 24px; font-weight: 700; }
   .proj-metric-pct { font-size: 13px; margin-top: 3px; opacity: 0.8; }
   .proj-rm  { background: #1a3d1a; border: 1px solid #30d158; }
-  .proj-rm  .proj-metric-label { color: #30d158; }
-  .proj-rm  .proj-metric-val   { color: #4cde4c; }
+  .proj-rm  .proj-metric-label { color: #30d158; } .proj-rm .proj-metric-val { color: #4cde4c; }
   .proj-az  { background: #3d1a1a; border: 1px solid #ff453a; }
-  .proj-az  .proj-metric-label { color: #ff6b6b; }
-  .proj-az  .proj-metric-val   { color: #ff6b6b; }
+  .proj-az  .proj-metric-label { color: #ff6b6b; } .proj-az .proj-metric-val { color: #ff6b6b; }
   .proj-ukn { background: #2a2200; border: 1px solid #ffd60a; }
-  .proj-ukn .proj-metric-label { color: #ffd60a; }
-  .proj-ukn .proj-metric-val   { color: #ffd60a; }
-
-  .swing-legend { display: flex; gap: 14px; font-size: 12px; color: #8e8e93; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
-  .swing-legend span { display: flex; align-items: center; gap: 5px; }
-  .swing-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
-  .swing-row { display: flex; align-items: center; padding: 11px 0; border-bottom: 1px solid #2e2e2e; gap: 10px; }
+  .proj-ukn .proj-metric-label { color: #ffd60a; } .proj-ukn .proj-metric-val { color: #ffd60a; }
+  .swing-row { display: flex; padding: 11px 0; border-bottom: 1px solid #2e2e2e; gap: 10px; }
   .swing-row:last-child { border-bottom: none; }
-  .swing-name { font-size: 14px; font-weight: 500; color: #f0f0f0; flex: 1; }
+  .swing-name { font-size: 14px; font-weight: 500; color: #f0f0f0; }
   .swing-comment { font-size: 12px; color: #8e8e93; font-style: italic; margin-top: 2px; }
-  .swing-btns { display: flex; gap: 8px; flex-shrink: 0; }
-  .swing-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #3a3a3c; background: #2c2c2e; cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: #6e6e73; }
-  .swing-btn.likely   { background: #1a3d1a; border-color: #30d158; color: #30d158; }
-  .swing-btn.unlikely { background: #3d1a1a; border-color: #ff453a; color: #ff453a; }
-  .lean-btn { flex: 1; padding: 5px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #3a3a3c; background: #2c2c2e; color: #8e8e93; }
+  .lean-btn { border-radius: 8px; border: 1px solid #3a3a3c; background: #2c2c2e; color: #8e8e93; cursor: pointer; font-size: 13px; font-weight: 600; }
+
+  /* Feedback */
+  .feedback-entry { border: 1px solid #2e2e2e; border-radius: 10px; padding: 12px; margin-bottom: 10px; background: #2c2c2e; }
+  .feedback-voter { font-size: 13px; font-weight: 600; color: #4da3ff; margin-bottom: 4px; }
+  .feedback-text { font-size: 13px; color: #f0f0f0; line-height: 1.5; }
+  .feedback-ts { font-size: 11px; color: #6e6e73; margin-top: 4px; }
+  .feedback-form { border: 1px solid #3a3a3c; border-radius: 10px; padding: 12px; margin-bottom: 10px; background: #1c1c1e; }
+  .add-feedback-btn { display: inline-flex; align-items: center; gap: 6px; background: #2c2c2e; border: 1px solid #3a3a3c; color: #4da3ff; border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 14px; }
+
+  /* Password overlay */
+  .pw-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 999; display: flex; align-items: center; justify-content: center; }
+  .pw-box { background: #1c1c1e; border: 1px solid #2e2e2e; border-radius: 16px; padding: 28px 24px; width: 300px; text-align: center; }
+  .pw-box h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .pw-box p { font-size: 13px; color: #8e8e93; margin-bottom: 16px; }
+  .pw-error { font-size: 13px; color: #ff453a; margin-top: 8px; min-height: 18px; }
+
+  /* DCL / THS */
+  .generated-box { background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 10px; padding: 14px; font-size: 14px; line-height: 1.7; color: #f0f0f0; min-height: 120px; white-space: pre-wrap; margin-bottom: 10px; }
+  .save-indicator { font-size: 12px; color: #30d158; text-align: right; min-height: 18px; }
 </style>
 </head>
 <body>
@@ -114,12 +123,26 @@
 <header>
   <h1>&#128505; Vote Tracker</h1>
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('entry', this)">Entry</button>
-    <button class="tab" onclick="switchTab('roster', this)">Roster</button>
-    <button class="tab" onclick="switchTab('report', this)">Report</button>
-    <button class="tab" onclick="switchTab('swing', this)">Swing</button>
+    <button class="tab active" onclick="switchTab('entry',this)">Entry</button>
+    <button class="tab" onclick="switchTab('roster',this)">Roster</button>
+    <button class="tab" onclick="switchTab('report',this)">Report</button>
+    <button class="tab" onclick="switchTab('swing',this)">Swing</button>
+    <button class="tab" onclick="tryTab('feedback',this)">Feedback</button>
+    <button class="tab" onclick="tryTab('dcl',this)">DCL</button>
+    <button class="tab" onclick="tryTab('ths',this)">THS</button>
   </div>
 </header>
+
+<!-- PASSWORD OVERLAY -->
+<div class="pw-overlay" id="pwOverlay" style="display:none">
+  <div class="pw-box">
+    <h2>&#128274; Protected tab</h2>
+    <p>Enter password to continue</p>
+    <input type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="btn btn-primary" style="margin-top:12px" onclick="checkPw()">Unlock</button>
+    <div class="pw-error" id="pwError"></div>
+  </div>
+</div>
 
 <!-- ENTRY TAB -->
 <div id="entry" class="panel active">
@@ -155,9 +178,7 @@
   </div>
   <div class="card">
     <div class="card-title">Current roster</div>
-    <div class="search-box">
-      <input type="text" id="rosterSearch" placeholder="Search..." oninput="renderRoster()">
-    </div>
+    <div class="search-box"><input type="text" id="rosterSearch" placeholder="Search..." oninput="renderRoster()"></div>
     <div id="rosterList"><div class="spinner">Loading...</div></div>
   </div>
 </div>
@@ -170,14 +191,8 @@
     <canvas id="pieChart" width="220" height="220"></canvas>
     <div style="margin-top:16px" id="legend"></div>
   </div>
-  <div class="card">
-    <div class="card-title">Breakdown</div>
-    <div id="breakdown"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Voter record</div>
-    <div id="voterRecord"></div>
-  </div>
+  <div class="card"><div class="card-title">Breakdown</div><div id="breakdown"></div></div>
+  <div class="card"><div class="card-title">Voter record</div><div id="voterRecord"></div></div>
 </div>
 
 <!-- SWING TAB -->
@@ -196,42 +211,120 @@
   </div>
 </div>
 
+<!-- FEEDBACK TAB -->
+<div id="feedback" class="panel">
+  <div class="card">
+    <div class="card-title">Add feedback</div>
+    <div id="feedbackForms">
+      <div class="feedback-form" id="fbForm0">
+        <label>Voter name</label>
+        <select class="fb-name"><option value="">&#8212; select voter &#8212;</option></select>
+        <label>Feedback</label>
+        <textarea class="fb-text" placeholder="What did they say?"></textarea>
+      </div>
+    </div>
+    <button class="add-feedback-btn" onclick="addFeedbackForm()">&#43; Add another</button>
+    <button class="btn btn-primary" onclick="submitFeedback()">Save feedback</button>
+    <div class="msg" id="feedbackMsg"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Feedback received</div>
+    <div id="feedbackList"><div class="spinner">Loading...</div></div>
+  </div>
+</div>
+
+<!-- DCL TAB -->
+<div id="dcl" class="panel">
+  <div class="card">
+    <div class="card-title">AI-generated cover letter</div>
+    <p style="font-size:13px;color:#8e8e93;margin-bottom:12px">Based on voter comments, Claude will draft a cover letter explaining why RM is applying for Department Chief of Service.</p>
+    <button class="btn btn-ai" onclick="generateDCL()">&#10024; Generate with AI</button>
+    <div style="margin-top:12px" id="dclGenerated"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">My cover letter</div>
+    <p style="font-size:13px;color:#8e8e93;margin-bottom:10px">Write or edit your own version here. Saves automatically.</p>
+    <textarea id="dclOwn" placeholder="Write your cover letter here..." style="min-height:260px" oninput="autoSave('dcl','own',this.value)"></textarea>
+    <div class="save-indicator" id="dclSaveMsg"></div>
+  </div>
+</div>
+
+<!-- THS TAB -->
+<div id="ths" class="panel">
+  <div class="card">
+    <div class="card-title">AI-generated town hall speech</div>
+    <p style="font-size:13px;color:#8e8e93;margin-bottom:12px">Based on voter comments, Claude will draft a speech covering the issues you would address to win the department's vote.</p>
+    <button class="btn btn-ai" onclick="generateTHS()">&#10024; Generate with AI</button>
+    <div style="margin-top:12px" id="thsGenerated"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">My speech</div>
+    <p style="font-size:13px;color:#8e8e93;margin-bottom:10px">Write or edit your own version here. Saves automatically.</p>
+    <textarea id="thsOwn" placeholder="Write your speech here..." style="min-height:260px" oninput="autoSave('ths','own',this.value)"></textarea>
+    <div class="save-indicator" id="thsSaveMsg"></div>
+  </div>
+</div>
+
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzbGMqPfET5eVbOUYxr5wE8TJ5JdHQbFg3xVaPb9Cvinm6GfUcmmgy4SKv2j0p53v0/exec";
+const CLAUDE_API = "https://api.anthropic.com/v1/messages";
+const PW = "dvt123";
 const COLORS = { RM:'#4caf50', AZ:'#e53935', Ukn:'#f9a825' };
 const LABELS = { RM:'RM', AZ:'AZ', Ukn:'Unknown' };
 
-let roster = [];
-let votes = [];
-let swingStatus = {};
+let roster = [], votes = [], swingStatus = {}, feedbackData = [];
+let pendingTab = null, unlockedTabs = {};
+let saveTimers = {};
 
 async function apiFetch(params) {
-  const url = API + '?' + new URLSearchParams(params);
-  const r = await fetch(url);
+  const r = await fetch(API + '?' + new URLSearchParams(params));
   return r.json();
 }
-
 async function apiPost(body) {
-  const r = await fetch(API, { method: 'POST', body: JSON.stringify(body) });
+  const r = await fetch(API, { method:'POST', body:JSON.stringify(body) });
   return r.json();
 }
 
 async function loadAll() {
   try {
-    const data = await apiFetch({ action: 'getAll' });
+    const data = await apiFetch({ action:'getAll' });
     roster = (data.roster || []).sort();
-    votes = data.votes || [];
-    // Load saved swing status from sheet
+    votes  = data.votes || [];
     swingStatus = {};
-    (data.swing || []).forEach(s => {
-    swingStatus[s.name] = { leanTo: s.leanTo || '', note: s.notes || '' };
-    });
+    (data.swing || []).forEach(s => { swingStatus[s.name] = { leanTo: s.leanTo||'', note: s.notes||'' }; });
+    feedbackData = data.feedback || [];
+    // Restore DCL / THS saved text
+    if (data.dcl && data.dcl.own) document.getElementById('dclOwn').value = data.dcl.own;
+    if (data.ths && data.ths.own) document.getElementById('thsOwn').value = data.ths.own;
+    if (data.dcl && data.dcl.generated) showGenerated('dclGenerated', data.dcl.generated);
+    if (data.ths && data.ths.generated) showGenerated('thsGenerated', data.ths.generated);
     buildVoterSelect();
+    buildFeedbackSelects();
     renderEntryList();
     renderRoster();
+    renderFeedbackList();
     renderSwing();
-  } catch(e) {
-    showMsg('entryMsg', 'Connection error. Check internet.', 'error');
+  } catch(e) { showMsg('entryMsg','Connection error. Check internet.','error'); }
+}
+
+// PASSWORD
+function tryTab(t, el) {
+  if (unlockedTabs[t]) { switchTab(t, el); return; }
+  pendingTab = { t, el };
+  document.getElementById('pwOverlay').style.display = 'flex';
+  document.getElementById('pwInput').value = '';
+  document.getElementById('pwError').textContent = '';
+  setTimeout(() => document.getElementById('pwInput').focus(), 100);
+}
+function checkPw() {
+  const val = document.getElementById('pwInput').value;
+  if (val === PW) {
+    unlockedTabs[pendingTab.t] = true;
+    document.getElementById('pwOverlay').style.display = 'none';
+    switchTab(pendingTab.t, pendingTab.el);
+  } else {
+    document.getElementById('pwError').textContent = 'Incorrect password. Try again.';
+    document.getElementById('pwInput').value = '';
   }
 }
 
@@ -249,277 +342,23 @@ function buildVoterSelect() {
   });
 }
 
+function buildFeedbackSelects() {
+  document.querySelectorAll('.fb-name').forEach(sel => {
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">&#8212; select voter &#8212;</option>';
+    roster.forEach(n => { const o = document.createElement('option'); o.value=n; o.textContent=n; if(n===cur) o.selected=true; sel.appendChild(o); });
+  });
+}
+
 function badgeFor(v) {
-  const key = (v === 'DB') ? 'RM' : v;
-  return `<span class="badge badge-${key.toLowerCase()}">${LABELS[key] || key}</span>`;
+  const key = (v==='DB') ? 'RM' : v;
+  return `<span class="badge badge-${key.toLowerCase()}">${LABELS[key]||key}</span>`;
 }
 
 function showMsg(id, text, type='') {
   const el = document.getElementById(id);
-  el.textContent = text;
-  el.className = 'msg ' + type;
-  if (text) setTimeout(() => { el.textContent = ''; el.className = 'msg'; }, 3500);
-}
-
-async function addVote() {
-  const name = document.getElementById('voterName').value;
-  const choice = document.getElementById('voteChoice').value;
-  const comment = document.getElementById('voteComment').value.trim();
-  if (!name)   { showMsg('entryMsg', 'Please select a voter.', 'error'); return; }
-  if (!choice) { showMsg('entryMsg', 'Please select a vote.',  'error'); return; }
-  const existing = votes.find(v => v.name === name);
-  if (existing && !confirm(`${name} already voted. Replace their vote?`)) return;
-  showMsg('entryMsg', 'Saving...');
-  try {
-    await apiPost({ action: 'addVote', name, choice, comment });
-    document.getElementById('voterName').value  = '';
-    document.getElementById('voteChoice').value = '';
-    document.getElementById('voteComment').value = '';
-    await loadAll();
-    showMsg('entryMsg', `Vote saved for ${name}!`, 'success');
-  } catch(e) { showMsg('entryMsg', 'Error saving. Try again.', 'error'); }
-}
-
-async function removeVote(name) {
-  if (!confirm(`Remove vote for ${name}?`)) return;
-  try {
-    await apiPost({ action: 'removeVote', name });
-    await loadAll();
-  } catch(e) { showMsg('entryMsg', 'Error removing. Try again.', 'error'); }
-}
-
-function renderEntryList() {
-  const el = document.getElementById('entryList');
-  if (!votes.length) { el.innerHTML = '<div class="empty">No votes yet.</div>'; return; }
-  const sorted = [...votes].sort((a,b) => a.name.localeCompare(b.name));
-  el.innerHTML = sorted.map(v => `
-    <div class="vote-row">
-      <div style="flex:1">
-        <div class="vote-name">${v.name}</div>
-        ${v.comment ? `<div class="vote-comment">"${v.comment}"</div>` : ''}
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        ${badgeFor(v.choice)}
-        <button class="remove-btn" onclick="removeVote('${v.name.replace(/'/g,"\\'")}')">&#215;</button>
-      </div>
-    </div>`).join('');
-}
-
-async function addPerson() {
-  const name = document.getElementById('newName').value.trim();
-  if (!name) { showMsg('rosterMsg', 'Please enter a name.', 'error'); return; }
-  if (roster.includes(name)) { showMsg('rosterMsg', `${name} is already on the roster.`, 'error'); return; }
-  try {
-    await apiPost({ action: 'addPerson', name });
-    document.getElementById('newName').value = '';
-    await loadAll();
-    showMsg('rosterMsg', `${name} added.`, 'success');
-  } catch(e) { showMsg('rosterMsg', 'Error. Try again.', 'error'); }
-}
-
-async function removePerson(name) {
-  const hasVote = votes.some(v => v.name === name);
-  if (!confirm(hasVote ? `${name} has a vote. Remove them and their vote?` : `Remove ${name} from the roster?`)) return;
-  if (hasVote) await apiPost({ action: 'removeVote', name });
-  await apiPost({ action: 'removePerson', name });
-  await loadAll();
-}
-
-function renderRoster() {
-  const search = (document.getElementById('rosterSearch').value || '').toLowerCase();
-  const filtered = roster.filter(n => n.toLowerCase().includes(search));
-  const el = document.getElementById('rosterList');
-  if (!filtered.length) { el.innerHTML = '<div class="empty">No matches.</div>'; return; }
-  el.innerHTML = `<div style="font-size:13px;color:#8e8e93;margin-bottom:8px">${roster.length} people &middot; ${votes.length} voted</div>` +
-    filtered.map(n => {
-      const v = votes.find(x => x.name === n);
-      return `<div class="roster-item">
-        <div>
-          <div class="roster-name">${n}</div>
-          ${v ? `<div class="roster-voted">Voted: ${v.choice}</div>` : ''}
-        </div>
-        <button class="remove-btn" onclick="removePerson('${n.replace(/'/g,"\\'")}')">&#215;</button>
-      </div>`;
-    }).join('');
-}
-
-async function setLean(name, lean) {
-  if (!swingStatus[name]) swingStatus[name] = { leanTo: '', note: '' };
-  // Toggle off if tapped again
-  swingStatus[name].leanTo = (swingStatus[name].leanTo === lean) ? '' : lean;
-  renderSwing();
-  const s = swingStatus[name];
-  await apiPost({ action: 'setSwing', name, status: 'likely', leanTo: s.leanTo, notes: s.note || '' });
-}
-
-async function setLean(name, lean) {
-  if (!swingStatus[name]) swingStatus[name] = { leanTo: '', note: '' };
-  swingStatus[name].leanTo = (swingStatus[name].leanTo === lean) ? '' : lean;
-  renderSwing();
-  const s = swingStatus[name];
-  await apiPost({ action: 'setSwing', name, status: 'likely', leanTo: s.leanTo, notes: s.note || '' });
-}
-
-async function saveNote(name, note) {
-  if (!swingStatus[name]) swingStatus[name] = { leanTo: '', note: '' };
-  swingStatus[name].note = note;
-  const s = swingStatus[name];
-  await apiPost({ action: 'setSwing', name, status: 'likely', leanTo: s.leanTo || '', notes: note });
-}
-
-function renderSwing() {
-  const unknownVoters = votes.filter(v => v.choice === 'Ukn');
-  const totalVotes = votes.length;
-  const likelyRM = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].leanTo === 'RM').length;
-  const likelyAZ = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].leanTo === 'AZ').length;
-  const stillTBD = unknownVoters.length - likelyRM - likelyAZ;
-  const ukPct    = totalVotes ? Math.round(unknownVoters.length / totalVotes * 100) : 0;
-
-  // Top summary boxes
-  document.getElementById('swingSummary').innerHTML = `
-    <div class="swing-metric"><div class="swing-metric-label">Unknown votes</div><div class="swing-metric-val" style="color:#ffd60a">${unknownVoters.length}</div><div class="swing-metric-pct">${ukPct}%</div></div>
-    <div class="swing-metric"><div class="swing-metric-label">Likely RM</div><div class="swing-metric-val" style="color:#30d158">${likelyRM}</div></div>
-    <div class="swing-metric"><div class="swing-metric-label">Likely AZ</div><div class="swing-metric-val" style="color:#ff453a">${likelyAZ}</div></div>
-    <div class="swing-metric"><div class="swing-metric-label">Still TBD</div><div class="swing-metric-val" style="color:#8e8e93">${stillTBD}</div></div>`;
-
-  // Projected totals: confirmed + likely swings
-  const confirmedRM = votes.filter(v => v.choice === 'RM' || v.choice === 'DB').length;
-  const confirmedAZ = votes.filter(v => v.choice === 'AZ').length;
-  const projRM  = confirmedRM + likelyRM;
-  const projAZ  = confirmedAZ + likelyAZ;
-  const projUkn = stillTBD;
-  const projTotal = projRM + projAZ + projUkn;
-  const pRM  = projTotal ? Math.round(projRM  / projTotal * 100) : 0;
-  const pAZ  = projTotal ? Math.round(projAZ  / projTotal * 100) : 0;
-  const pUkn = projTotal ? Math.round(projUkn / projTotal * 100) : 0;
-
-  document.getElementById('projGrid').innerHTML = `
-    <div class="proj-metric proj-rm">
-      <div class="proj-metric-label">RM</div>
-      <div class="proj-metric-val">${projRM}</div>
-      <div class="proj-metric-pct">${pRM}%</div>
-      <div style="font-size:10px;margin-top:3px;opacity:0.6">${confirmedRM} confirmed + ${likelyRM} likely</div>
-    </div>
-    <div class="proj-metric proj-az">
-      <div class="proj-metric-label">AZ</div>
-      <div class="proj-metric-val">${projAZ}</div>
-      <div class="proj-metric-pct">${pAZ}%</div>
-      <div style="font-size:10px;margin-top:3px;opacity:0.6">${confirmedAZ} confirmed + ${likelyAZ} likely</div>
-    </div>
-    <div class="proj-metric proj-ukn">
-      <div class="proj-metric-label">Unknown</div>
-      <div class="proj-metric-val">${projUkn}</div>
-      <div class="proj-metric-pct">${pUkn}%</div>
-      <div style="font-size:10px;margin-top:3px;opacity:0.6">still undecided</div>
-    </div>`;
-
-  // Voter list
-  const el = document.getElementById('swingList');
-  if (!unknownVoters.length) { el.innerHTML = '<div class="empty">No unknown votes yet.</div>'; return; }
-
-  const sorted = [...unknownVoters].sort((a,b) => a.name.localeCompare(b.name));
-  el.innerHTML = sorted.map(v => {
-    const s = swingStatus[v.name] || { leanTo: '', note: '' };
-    const safeName = v.name.replace(/'/g,"\\'");
-    return `<div class="swing-row" style="flex-direction:column;align-items:stretch;gap:8px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div style="flex:1">
-          <div class="swing-name">${v.name}</div>
-          ${v.comment ? `<div class="swing-comment">"${v.comment}"</div>` : ''}
-        </div>
-        <div style="display:flex;gap:6px;flex-shrink:0;margin-left:10px">
-          <button class="lean-btn" onclick="setLean('${safeName}','RM')"
-            style="border-color:${s.leanTo==='RM'?'#30d158':'#3a3a3c'};background:${s.leanTo==='RM'?'#1a3d1a':'#2c2c2e'};color:${s.leanTo==='RM'?'#30d158':'#8e8e93'};padding:7px 14px;font-size:13px">
-            &#8594; RM
-          </button>
-          <button class="lean-btn" onclick="setLean('${safeName}','AZ')"
-            style="border-color:${s.leanTo==='AZ'?'#ff453a':'#3a3a3c'};background:${s.leanTo==='AZ'?'#3d1a1a':'#2c2c2e'};color:${s.leanTo==='AZ'?'#ff6b6b':'#8e8e93'};padding:7px 14px;font-size:13px">
-            &#8594; AZ
-          </button>
-        </div>
-      </div>
-      <textarea placeholder="Strategy notes..." style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:8px;padding:8px 10px;font-size:13px;color:#f0f0f0;font-family:inherit;resize:vertical;min-height:60px;" onblur="saveNote('${safeName}', this.value)">${s.note || ''}</textarea>
-    </div>`;
-  }).join('');
-}
-
-function renderReport() {
-  const total = votes.length;
-  const counts = { RM:0, AZ:0, Ukn:0 };
-  votes.forEach(v => {
-    const key = (v.choice === 'DB') ? 'RM' : v.choice;
-    if (counts[key] !== undefined) counts[key]++;
-  });
-  const pct = total ? Math.round(votes.length / Math.max(roster.length,1) * 100) : 0;
-
-  document.getElementById('summaryCards').innerHTML = `
-    <div class="summary-grid">
-      <div class="metric"><div class="metric-label">Roster</div><div class="metric-val">${roster.length}</div><div class="participation">${votes.length} voted (${pct}%)</div></div>
-      ${Object.keys(counts).map(k => {
-        const p = total ? Math.round(counts[k]/total*100) : 0;
-        return `<div class="metric"><div class="metric-label">${LABELS[k]}</div><div class="metric-val" style="color:${COLORS[k]}">${counts[k]}</div><div class="metric-pct">${p}%</div></div>`;
-      }).join('')}
-    </div>`;
-
-  drawPie(counts, total);
-
-  const bd = document.getElementById('breakdown');
-  if (!total) { bd.innerHTML = '<div class="empty">No votes yet.</div>'; }
-  else {
-    bd.innerHTML = Object.keys(counts).map(k => {
-      const p = total ? Math.round(counts[k]/total*100) : 0;
-      return `<div class="bar-row">
-        <div class="bar-label"><span class="badge badge-${k.toLowerCase()}">${LABELS[k]}</span><span style="font-weight:600">${counts[k]} &nbsp;${p}%</span></div>
-        <div class="bar-track"><div class="bar-fill" style="background:${COLORS[k]};width:${p}%"></div></div>
-      </div>`;
-    }).join('');
-  }
-
-  const vr = document.getElementById('voterRecord');
-  if (!votes.length) { vr.innerHTML = '<div class="empty">No votes yet.</div>'; }
-  else {
-    const sorted = [...votes].sort((a,b) => a.name.localeCompare(b.name));
-    vr.innerHTML = sorted.map((v,i) => `
-      <div class="vote-row">
-        <div style="flex:1">
-          <div class="vote-name">${i+1}. ${v.name}</div>
-          ${v.comment ? `<div class="vote-comment">"${v.comment}"</div>` : ''}
-        </div>
-        ${badgeFor(v.choice)}
-      </div>`).join('');
-  }
-}
-
-function drawPie(counts, total) {
-  const canvas = document.getElementById('pieChart');
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,220,220);
-  const legend = document.getElementById('legend');
-  legend.innerHTML = '';
-  if (!total) {
-    ctx.fillStyle = '#2c2c2e'; ctx.beginPath(); ctx.arc(110,110,100,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#8e8e93'; ctx.font = '14px -apple-system'; ctx.textAlign = 'center'; ctx.fillText('No data', 110, 115);
-    return;
-  }
-  let start = -Math.PI/2;
-  Object.keys(counts).forEach(k => {
-    if (!counts[k]) return;
-    const slice = counts[k]/total * Math.PI*2;
-    ctx.beginPath(); ctx.moveTo(110,110); ctx.arc(110,110,100,start,start+slice); ctx.closePath();
-    ctx.fillStyle = COLORS[k]; ctx.fill();
-    start += slice;
-  });
-  ctx.beginPath(); ctx.arc(110,110,48,0,Math.PI*2); ctx.fillStyle = '#1c1c1e'; ctx.fill();
-  ctx.fillStyle = '#f0f0f0'; ctx.font = 'bold 22px -apple-system'; ctx.textAlign = 'center'; ctx.fillText(total, 110, 106);
-  ctx.fillStyle = '#8e8e93'; ctx.font = '13px -apple-system'; ctx.fillText('votes', 110, 124);
-  Object.keys(counts).forEach(k => {
-    if (!counts[k]) return;
-    const p = Math.round(counts[k]/total*100);
-    const item = document.createElement('div');
-    item.className = 'legend-item';
-    item.innerHTML = `<div class="legend-dot" style="background:${COLORS[k]}"></div><span>${LABELS[k]} &mdash; ${counts[k]} vote${counts[k]!==1?'s':''} (${p}%)</span>`;
-    legend.appendChild(item);
-  });
+  el.textContent = text; el.className = 'msg '+type;
+  if (text) setTimeout(() => { el.textContent=''; el.className='msg'; }, 3500);
 }
 
 function switchTab(t, el) {
@@ -527,8 +366,323 @@ function switchTab(t, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById(t).classList.add('active');
   el.classList.add('active');
-  if (t === 'report') renderReport();
-  if (t === 'swing')  renderSwing();
+  if (t==='report') renderReport();
+  if (t==='swing')  renderSwing();
+}
+
+// VOTES
+async function addVote() {
+  const name = document.getElementById('voterName').value;
+  const choice = document.getElementById('voteChoice').value;
+  const comment = document.getElementById('voteComment').value.trim();
+  if (!name)   { showMsg('entryMsg','Please select a voter.','error'); return; }
+  if (!choice) { showMsg('entryMsg','Please select a vote.','error'); return; }
+  const existing = votes.find(v => v.name===name);
+  if (existing && !confirm(`${name} already voted. Replace their vote?`)) return;
+  showMsg('entryMsg','Saving...');
+  try {
+    await apiPost({ action:'addVote', name, choice, comment });
+    document.getElementById('voterName').value='';
+    document.getElementById('voteChoice').value='';
+    document.getElementById('voteComment').value='';
+    await loadAll();
+    showMsg('entryMsg',`Vote saved for ${name}!`,'success');
+  } catch(e) { showMsg('entryMsg','Error saving. Try again.','error'); }
+}
+
+async function removeVote(name) {
+  if (!confirm(`Remove vote for ${name}?`)) return;
+  try { await apiPost({ action:'removeVote', name }); await loadAll(); }
+  catch(e) { showMsg('entryMsg','Error removing. Try again.','error'); }
+}
+
+function renderEntryList() {
+  const el = document.getElementById('entryList');
+  if (!votes.length) { el.innerHTML='<div class="empty">No votes yet.</div>'; return; }
+  const sorted = [...votes].sort((a,b)=>a.name.localeCompare(b.name));
+  el.innerHTML = sorted.map(v=>`
+    <div class="vote-row">
+      <div style="flex:1"><div class="vote-name">${v.name}</div>${v.comment?`<div class="vote-comment">"${v.comment}"</div>`:''}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${badgeFor(v.choice)}
+        <button class="remove-btn" onclick="removeVote('${v.name.replace(/'/g,"\\'")}')">&#215;</button>
+      </div>
+    </div>`).join('');
+}
+
+// ROSTER
+async function addPerson() {
+  const name = document.getElementById('newName').value.trim();
+  if (!name) { showMsg('rosterMsg','Please enter a name.','error'); return; }
+  if (roster.includes(name)) { showMsg('rosterMsg',`${name} is already on the roster.`,'error'); return; }
+  try { await apiPost({ action:'addPerson', name }); document.getElementById('newName').value=''; await loadAll(); showMsg('rosterMsg',`${name} added.`,'success'); }
+  catch(e) { showMsg('rosterMsg','Error. Try again.','error'); }
+}
+async function removePerson(name) {
+  const hasVote = votes.some(v=>v.name===name);
+  if (!confirm(hasVote?`${name} has a vote. Remove them and their vote?`:`Remove ${name} from the roster?`)) return;
+  if (hasVote) await apiPost({ action:'removeVote', name });
+  await apiPost({ action:'removePerson', name });
+  await loadAll();
+}
+function renderRoster() {
+  const search = (document.getElementById('rosterSearch').value||'').toLowerCase();
+  const filtered = roster.filter(n=>n.toLowerCase().includes(search));
+  const el = document.getElementById('rosterList');
+  if (!filtered.length) { el.innerHTML='<div class="empty">No matches.</div>'; return; }
+  el.innerHTML = `<div style="font-size:13px;color:#8e8e93;margin-bottom:8px">${roster.length} people &middot; ${votes.length} voted</div>` +
+    filtered.map(n => {
+      const v = votes.find(x=>x.name===n);
+      return `<div class="roster-item"><div><div class="roster-name">${n}</div>${v?`<div class="roster-voted">Voted: ${v.choice}</div>`:''}</div>
+        <button class="remove-btn" onclick="removePerson('${n.replace(/'/g,"\\'")}')">&#215;</button></div>`;
+    }).join('');
+}
+
+// SWING
+async function setLean(name, lean) {
+  if (!swingStatus[name]) swingStatus[name] = { leanTo:'', note:'' };
+  swingStatus[name].leanTo = (swingStatus[name].leanTo===lean) ? '' : lean;
+  renderSwing();
+  const s = swingStatus[name];
+  await apiPost({ action:'setSwing', name, status:'likely', leanTo:s.leanTo, notes:s.note||'' });
+}
+async function saveNote(name, note) {
+  if (!swingStatus[name]) swingStatus[name] = { leanTo:'', note:'' };
+  swingStatus[name].note = note;
+  const s = swingStatus[name];
+  await apiPost({ action:'setSwing', name, status:'likely', leanTo:s.leanTo||'', notes:note });
+}
+function renderSwing() {
+  const unknownVoters = votes.filter(v=>v.choice==='Ukn');
+  const totalVotes = votes.length;
+  const likelyRM = unknownVoters.filter(v=>swingStatus[v.name]&&swingStatus[v.name].leanTo==='RM').length;
+  const likelyAZ = unknownVoters.filter(v=>swingStatus[v.name]&&swingStatus[v.name].leanTo==='AZ').length;
+  const stillTBD = unknownVoters.length - likelyRM - likelyAZ;
+  const ukPct = totalVotes ? Math.round(unknownVoters.length/totalVotes*100) : 0;
+
+  document.getElementById('swingSummary').innerHTML = `
+    <div class="swing-metric"><div class="swing-metric-label">Unknown votes</div><div class="swing-metric-val" style="color:#ffd60a">${unknownVoters.length}</div><div class="swing-metric-pct">${ukPct}%</div></div>
+    <div class="swing-metric"><div class="swing-metric-label">Likely RM</div><div class="swing-metric-val" style="color:#30d158">${likelyRM}</div></div>
+    <div class="swing-metric"><div class="swing-metric-label">Likely AZ</div><div class="swing-metric-val" style="color:#ff453a">${likelyAZ}</div></div>
+    <div class="swing-metric"><div class="swing-metric-label">Still TBD</div><div class="swing-metric-val" style="color:#8e8e93">${stillTBD}</div></div>`;
+
+  const confirmedRM = votes.filter(v=>v.choice==='RM'||v.choice==='DB').length;
+  const confirmedAZ = votes.filter(v=>v.choice==='AZ').length;
+  const projRM=confirmedRM+likelyRM, projAZ=confirmedAZ+likelyAZ, projUkn=stillTBD;
+  const projTotal=projRM+projAZ+projUkn;
+  const pRM=projTotal?Math.round(projRM/projTotal*100):0;
+  const pAZ=projTotal?Math.round(projAZ/projTotal*100):0;
+  const pUkn=projTotal?Math.round(projUkn/projTotal*100):0;
+
+  document.getElementById('projGrid').innerHTML = `
+    <div class="proj-metric proj-rm"><div class="proj-metric-label">RM</div><div class="proj-metric-val">${projRM}</div><div class="proj-metric-pct">${pRM}%</div><div style="font-size:10px;margin-top:3px;opacity:0.6">${confirmedRM} confirmed + ${likelyRM} likely</div></div>
+    <div class="proj-metric proj-az"><div class="proj-metric-label">AZ</div><div class="proj-metric-val">${projAZ}</div><div class="proj-metric-pct">${pAZ}%</div><div style="font-size:10px;margin-top:3px;opacity:0.6">${confirmedAZ} confirmed + ${likelyAZ} likely</div></div>
+    <div class="proj-metric proj-ukn"><div class="proj-metric-label">Unknown</div><div class="proj-metric-val">${projUkn}</div><div class="proj-metric-pct">${pUkn}%</div><div style="font-size:10px;margin-top:3px;opacity:0.6">still undecided</div></div>`;
+
+  const el = document.getElementById('swingList');
+  if (!unknownVoters.length) { el.innerHTML='<div class="empty">No unknown votes yet.</div>'; return; }
+  const sorted=[...unknownVoters].sort((a,b)=>a.name.localeCompare(b.name));
+  el.innerHTML = sorted.map(v => {
+    const s = swingStatus[v.name]||{leanTo:'',note:''};
+    const safe = v.name.replace(/'/g,"\\'");
+    return `<div class="swing-row" style="flex-direction:column;align-items:stretch;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1"><div class="swing-name">${v.name}</div>${v.comment?`<div class="swing-comment">"${v.comment}"</div>`:''}</div>
+        <div style="display:flex;gap:6px;flex-shrink:0;margin-left:10px">
+          <button class="lean-btn" onclick="setLean('${safe}','RM')" style="border-color:${s.leanTo==='RM'?'#30d158':'#3a3a3c'};background:${s.leanTo==='RM'?'#1a3d1a':'#2c2c2e'};color:${s.leanTo==='RM'?'#30d158':'#8e8e93'};padding:7px 14px">&#8594; RM</button>
+          <button class="lean-btn" onclick="setLean('${safe}','AZ')" style="border-color:${s.leanTo==='AZ'?'#ff453a':'#3a3a3c'};background:${s.leanTo==='AZ'?'#3d1a1a':'#2c2c2e'};color:${s.leanTo==='AZ'?'#ff6b6b':'#8e8e93'};padding:7px 14px">&#8594; AZ</button>
+        </div>
+      </div>
+      <textarea placeholder="Strategy notes..." style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:8px;padding:8px 10px;font-size:13px;color:#f0f0f0;font-family:inherit;resize:vertical;min-height:60px;" onblur="saveNote('${safe}',this.value)">${s.note||''}</textarea>
+    </div>`;
+  }).join('');
+}
+
+// FEEDBACK
+let fbFormCount = 1;
+function addFeedbackForm() {
+  const id = fbFormCount++;
+  const div = document.createElement('div');
+  div.className = 'feedback-form';
+  div.id = `fbForm${id}`;
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;color:#8e8e93">Additional feedback</span>
+      <button class="remove-btn" onclick="this.closest('.feedback-form').remove()">&#215;</button>
+    </div>
+    <label>Voter name</label>
+    <select class="fb-name"><option value="">&#8212; select voter &#8212;</option></select>
+    <label>Feedback</label>
+    <textarea class="fb-text" placeholder="What did they say?"></textarea>`;
+  document.getElementById('feedbackForms').appendChild(div);
+  buildFeedbackSelects();
+}
+
+async function submitFeedback() {
+  const forms = document.querySelectorAll('.feedback-form');
+  let saved = 0, errors = 0;
+  for (const form of forms) {
+    const name = form.querySelector('.fb-name').value;
+    const text = form.querySelector('.fb-text').value.trim();
+    if (!name || !text) continue;
+    try { await apiPost({ action:'addFeedback', name, feedback:text }); saved++; }
+    catch(e) { errors++; }
+  }
+  if (saved) {
+    await loadAll();
+    // Reset forms
+    document.getElementById('feedbackForms').innerHTML = `
+      <div class="feedback-form" id="fbForm0">
+        <label>Voter name</label>
+        <select class="fb-name"><option value="">&#8212; select voter &#8212;</option></select>
+        <label>Feedback</label>
+        <textarea class="fb-text" placeholder="What did they say?"></textarea>
+      </div>`;
+    fbFormCount = 1;
+    buildFeedbackSelects();
+    showMsg('feedbackMsg', `${saved} feedback item${saved!==1?'s':''} saved!`, 'success');
+  } else {
+    showMsg('feedbackMsg', 'Please fill in at least one name and feedback.', 'error');
+  }
+}
+
+async function removeFeedback(id) {
+  if (!confirm('Remove this feedback?')) return;
+  await apiPost({ action:'removeFeedback', id });
+  await loadAll();
+}
+
+function renderFeedbackList() {
+  const el = document.getElementById('feedbackList');
+  if (!feedbackData.length) { el.innerHTML='<div class="empty">No feedback recorded yet.</div>'; return; }
+  const sorted = [...feedbackData].sort((a,b)=>a.name.localeCompare(b.name));
+  el.innerHTML = sorted.map(f => `
+    <div class="feedback-entry">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="feedback-voter">${f.name}</div>
+        <button class="remove-btn" onclick="removeFeedback('${f.id}')">&#215;</button>
+      </div>
+      <div class="feedback-text">${f.feedback}</div>
+      <div class="feedback-ts">${f.ts ? new Date(f.ts).toLocaleDateString() : ''}</div>
+    </div>`).join('');
+}
+
+// AUTO-SAVE for DCL / THS
+function autoSave(tab, key, value) {
+  const msgId = tab + 'SaveMsg';
+  clearTimeout(saveTimers[tab+key]);
+  document.getElementById(msgId).textContent = 'Saving...';
+  saveTimers[tab+key] = setTimeout(async () => {
+    try {
+      const action = tab==='dcl' ? 'saveDCL' : 'saveTHS';
+      await apiPost({ action, key, value });
+      document.getElementById(msgId).textContent = 'Saved ✓';
+      setTimeout(() => { document.getElementById(msgId).textContent=''; }, 2000);
+    } catch(e) { document.getElementById(msgId).textContent='Error saving'; }
+  }, 1200);
+}
+
+function showGenerated(elId, text) {
+  const el = document.getElementById(elId);
+  el.innerHTML = `<div class="generated-box">${text.replace(/\n/g,'<br>')}</div>`;
+}
+
+// AI GENERATION
+async function generateDCL() {
+  const btn = document.querySelector('#dcl .btn-ai');
+  btn.textContent = 'Generating...'; btn.disabled = true;
+  const comments = votes.filter(v=>v.comment).map(v=>`- ${v.name} (${v.choice}): "${v.comment}"`).join('\n');
+  const feedback = feedbackData.map(f=>`- ${f.name}: "${f.feedback}"`).join('\n');
+  const prompt = `You are helping RM write a cover letter applying for the role of Department Chief of Service.
+
+Here are comments and feedback from department members:
+${comments || 'No comments recorded yet.'}
+
+Additional feedback received:
+${feedback || 'No additional feedback recorded yet.'}
+
+Write a professional, compelling cover letter (3-4 paragraphs) from RM's perspective applying for Department Chief of Service. Reference the themes and concerns raised by colleagues. Use a warm, confident tone.`;
+
+  try {
+    const res = await fetch(CLAUDE_API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, messages:[{role:'user',content:prompt}] })
+    });
+    const data = await res.json();
+    const text = data.content[0].text;
+    showGenerated('dclGenerated', text);
+    await apiPost({ action:'saveDCL', key:'generated', value:text });
+  } catch(e) { document.getElementById('dclGenerated').innerHTML='<div style="color:#ff453a;font-size:13px">Error generating. Try again.</div>'; }
+  btn.textContent='✨ Generate with AI'; btn.disabled=false;
+}
+
+async function generateTHS() {
+  const btn = document.querySelector('#ths .btn-ai');
+  btn.textContent='Generating...'; btn.disabled=true;
+  const comments = votes.filter(v=>v.comment).map(v=>`- ${v.name} (${v.choice}): "${v.comment}"`).join('\n');
+  const feedback = feedbackData.map(f=>`- ${f.name}: "${f.feedback}"`).join('\n');
+  const prompt = `You are helping RM prepare a town hall speech to win the vote for Department Chief of Service.
+
+Here are comments and feedback from department members:
+${comments || 'No comments recorded yet.'}
+
+Additional feedback received:
+${feedback || 'No additional feedback recorded yet.'}
+
+Write a compelling, engaging town hall speech (4-5 paragraphs) that RM would deliver to the department. Address the key issues and concerns raised by colleagues. The speech should be inspiring, show leadership, and directly speak to what matters to the team. Use a confident, inclusive tone.`;
+
+  try {
+    const res = await fetch(CLAUDE_API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200, messages:[{role:'user',content:prompt}] })
+    });
+    const data = await res.json();
+    const text = data.content[0].text;
+    showGenerated('thsGenerated', text);
+    await apiPost({ action:'saveTHS', key:'generated', value:text });
+  } catch(e) { document.getElementById('thsGenerated').innerHTML='<div style="color:#ff453a;font-size:13px">Error generating. Try again.</div>'; }
+  btn.textContent='✨ Generate with AI'; btn.disabled=false;
+}
+
+// REPORT
+function renderReport() {
+  const total = votes.length;
+  const counts = { RM:0, AZ:0, Ukn:0 };
+  votes.forEach(v => { const k=(v.choice==='DB')?'RM':v.choice; if(counts[k]!==undefined) counts[k]++; });
+  const pct = total ? Math.round(votes.length/Math.max(roster.length,1)*100) : 0;
+
+  document.getElementById('summaryCards').innerHTML = `
+    <div class="summary-grid">
+      <div class="metric"><div class="metric-label">Roster</div><div class="metric-val">${roster.length}</div><div class="participation">${votes.length} voted (${pct}%)</div></div>
+      ${Object.keys(counts).map(k=>{const p=total?Math.round(counts[k]/total*100):0;return`<div class="metric"><div class="metric-label">${LABELS[k]}</div><div class="metric-val" style="color:${COLORS[k]}">${counts[k]}</div><div class="metric-pct">${p}%</div></div>`;}).join('')}
+    </div>`;
+
+  drawPie(counts,total);
+
+  const bd=document.getElementById('breakdown');
+  if(!total){bd.innerHTML='<div class="empty">No votes yet.</div>';}
+  else{bd.innerHTML=Object.keys(counts).map(k=>{const p=total?Math.round(counts[k]/total*100):0;return`<div class="bar-row"><div class="bar-label"><span class="badge badge-${k.toLowerCase()}">${LABELS[k]}</span><span style="font-weight:600">${counts[k]} &nbsp;${p}%</span></div><div class="bar-track"><div class="bar-fill" style="background:${COLORS[k]};width:${p}%"></div></div></div>`;}).join('');}
+
+  const vr=document.getElementById('voterRecord');
+  if(!votes.length){vr.innerHTML='<div class="empty">No votes yet.</div>';}
+  else{const sorted=[...votes].sort((a,b)=>a.name.localeCompare(b.name));vr.innerHTML=sorted.map((v,i)=>`<div class="vote-row"><div style="flex:1"><div class="vote-name">${i+1}. ${v.name}</div>${v.comment?`<div class="vote-comment">"${v.comment}"</div>`:''}</div>${badgeFor(v.choice)}</div>`).join('');}
+}
+
+function drawPie(counts,total){
+  const canvas=document.getElementById('pieChart');
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,220,220);
+  const legend=document.getElementById('legend');
+  legend.innerHTML='';
+  if(!total){ctx.fillStyle='#2c2c2e';ctx.beginPath();ctx.arc(110,110,100,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8e8e93';ctx.font='14px -apple-system';ctx.textAlign='center';ctx.fillText('No data',110,115);return;}
+  let start=-Math.PI/2;
+  Object.keys(counts).forEach(k=>{if(!counts[k])return;const slice=counts[k]/total*Math.PI*2;ctx.beginPath();ctx.moveTo(110,110);ctx.arc(110,110,100,start,start+slice);ctx.closePath();ctx.fillStyle=COLORS[k];ctx.fill();start+=slice;});
+  ctx.beginPath();ctx.arc(110,110,48,0,Math.PI*2);ctx.fillStyle='#1c1c1e';ctx.fill();
+  ctx.fillStyle='#f0f0f0';ctx.font='bold 22px -apple-system';ctx.textAlign='center';ctx.fillText(total,110,106);
+  ctx.fillStyle='#8e8e93';ctx.font='13px -apple-system';ctx.fillText('votes',110,124);
+  Object.keys(counts).forEach(k=>{if(!counts[k])return;const p=Math.round(counts[k]/total*100);const item=document.createElement('div');item.className='legend-item';item.innerHTML=`<div class="legend-dot" style="background:${COLORS[k]}"></div><span>${LABELS[k]} &mdash; ${counts[k]} vote${counts[k]!==1?'s':''} (${p}%)</span>`;legend.appendChild(item);});
 }
 
 loadAll();
