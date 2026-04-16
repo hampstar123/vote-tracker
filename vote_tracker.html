@@ -83,6 +83,7 @@
   .proj-metric { flex: 1; border-radius: 10px; padding: 12px 8px; text-align: center; }
   .proj-metric-label { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
   .proj-metric-val { font-size: 24px; font-weight: 700; }
+  .proj-metric-pct { font-size: 13px; margin-top: 3px; opacity: 0.8; }
   .proj-rm  { background: #1a3d1a; border: 1px solid #30d158; }
   .proj-rm  .proj-metric-label { color: #30d158; }
   .proj-rm  .proj-metric-val   { color: #4cde4c; }
@@ -224,7 +225,7 @@ async function loadAll() {
     // Load saved swing status from sheet
     swingStatus = {};
     (data.swing || []).forEach(s => {
-      swingStatus[s.name] = { status: s.status || '', leanTo: s.leanTo || '' };
+    swingStatus[s.name] = { status: s.status || '', leanTo: s.leanTo || '', note: s.notes || '' };
     });
     buildVoterSelect();
     renderEntryList();
@@ -354,7 +355,7 @@ async function setSwing(name, field, value) {
   renderSwing();
   // Save to sheet
   const s = swingStatus[name];
-  await apiPost({ action: 'setSwing', name, status: s.status, leanTo: s.leanTo });
+  await apiPost({ action: 'setSwing', name, status: s.status, leanTo: s.leanTo, note: s.note || '' });
 }
 
 function renderSwing() {
@@ -380,17 +381,22 @@ function renderSwing() {
     else projUkn++;
   });
 
+  const projTotal = projRM + projAZ + projUkn;
+  const pRM  = projTotal ? Math.round(projRM  / projTotal * 100) : 0;
+  const pAZ  = projTotal ? Math.round(projAZ  / projTotal * 100) : 0;
+  const pUkn = projTotal ? Math.round(projUkn / projTotal * 100) : 0;
+
   document.getElementById('projGrid').innerHTML = `
-    <div class="proj-metric proj-rm"><div class="proj-metric-label">RM</div><div class="proj-metric-val">${projRM}</div></div>
-    <div class="proj-metric proj-az"><div class="proj-metric-label">AZ</div><div class="proj-metric-val">${projAZ}</div></div>
-    <div class="proj-metric proj-ukn"><div class="proj-metric-label">Unknown</div><div class="proj-metric-val">${projUkn}</div></div>`;
+    <div class="proj-metric proj-rm"><div class="proj-metric-label">RM</div><div class="proj-metric-val">${projRM}</div><div class="proj-metric-pct">${pRM}%</div></div>
+    <div class="proj-metric proj-az"><div class="proj-metric-label">AZ</div><div class="proj-metric-val">${projAZ}</div><div class="proj-metric-pct">${pAZ}%</div></div>
+    <div class="proj-metric proj-ukn"><div class="proj-metric-label">Unknown</div><div class="proj-metric-val">${projUkn}</div><div class="proj-metric-pct">${pUkn}%</div></div>`;
 
   const el = document.getElementById('swingList');
   if (!unknownVoters.length) { el.innerHTML = '<div class="empty">No unknown votes yet.</div>'; return; }
 
   const sorted = [...unknownVoters].sort((a,b) => a.name.localeCompare(b.name));
   el.innerHTML = sorted.map(v => {
-    const s = swingStatus[v.name] || { status: '', leanTo: '' };
+    const s = swingStatus[v.name] || { status: '', leanTo: '', note: '' };
     const isLikely = s.status === 'likely';
     const safeName = v.name.replace(/'/g,"\\'");
     return `<div class="swing-row">
@@ -407,13 +413,21 @@ function renderSwing() {
             &#8594; AZ
           </button>
         </div>` : ''}
+        <textarea placeholder="Strategy notes..." style="width:100%;margin-top:8px;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:8px;padding:8px 10px;font-size:13px;color:#f0f0f0;font-family:inherit;resize:vertical;min-height:56px;" onblur="saveNote('${safeName}', this.value)">${s.note || ''}</textarea>
       </div>
-      <div class="swing-btns">
+      <div class="swing-btns" style="align-self:flex-start;margin-top:2px">
         <button class="swing-btn ${s.status==='likely'?'likely':''}"   onclick="setSwing('${safeName}','status','likely')"   title="Likely">&#10003;</button>
         <button class="swing-btn ${s.status==='unlikely'?'unlikely':''}" onclick="setSwing('${safeName}','status','unlikely')" title="Unlikely">&#10007;</button>
       </div>
     </div>`;
   }).join('');
+}
+
+async function saveNote(name, note) {
+  if (!swingStatus[name]) swingStatus[name] = { status: '', leanTo: '', note: '' };
+  swingStatus[name].note = note;
+  const s = swingStatus[name];
+  await apiPost({ action: 'setSwing', name, status: s.status, leanTo: s.leanTo, note: s.note });
 }
 
 function renderReport() {
