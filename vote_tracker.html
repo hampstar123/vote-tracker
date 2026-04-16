@@ -77,6 +77,7 @@
   .swing-metric { flex: 1; min-width: 70px; background: #1c1c1e; border: 1px solid #2e2e2e; border-radius: 10px; padding: 10px 8px; text-align: center; }
   .swing-metric-label { font-size: 11px; color: #8e8e93; margin-bottom: 3px; }
   .swing-metric-val { font-size: 22px; font-weight: 700; }
+  .swing-metric-pct { font-size: 12px; color: #8e8e93; margin-top: 2px; }
 
   .proj-section-label { font-size: 12px; font-weight: 600; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
   .proj-grid { display: flex; gap: 8px; margin-bottom: 10px; }
@@ -181,17 +182,16 @@
 
 <!-- SWING TAB -->
 <div id="swing" class="panel">
-  <div class="swing-row-metrics" id="swingSummary"></div>
   <div class="card">
-    <div class="proj-section-label">&#128202; Projected result (with swing)</div>
-    <div class="proj-grid" id="projGrid"></div>
-    <div style="font-size:11px;color:#6e6e73;text-align:center;margin-top:2px">Likely swings counted toward RM or AZ based on lean. Unmarked stay as Unknown.</div>
+    <div class="card-title">Unknown vote summary</div>
+    <div class="swing-row-metrics" id="swingSummary"></div>
   </div>
   <div class="card">
-    <div class="swing-legend">
-      <span><span class="swing-dot" style="background:#30d158"></span>Likely to swing</span>
-      <span><span class="swing-dot" style="background:#3a3a3c"></span>Still unknown</span>
-    </div>
+    <div class="card-title">&#128202; Projected result (with swing)</div>
+    <div class="proj-grid" id="projGrid"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Unknown voters — select likely lean</div>
     <div id="swingList"><div class="spinner">Loading...</div></div>
   </div>
 </div>
@@ -224,7 +224,7 @@ async function loadAll() {
     // Load saved swing status from sheet
     swingStatus = {};
     (data.swing || []).forEach(s => {
-    swingStatus[s.name] = { status: s.status || '', leanTo: s.leanTo || '', note: s.notes || '' };
+    swingStatus[s.name] = { leanTo: s.leanTo || '', note: s.notes || '' };
     });
     buildVoterSelect();
     renderEntryList();
@@ -343,90 +343,104 @@ function renderRoster() {
     }).join('');
 }
 
-async function setSwing(name, field, value) {
-  if (!swingStatus[name]) swingStatus[name] = { status: '', leanTo: '' };
-  // Toggle off if same value tapped again
-  swingStatus[name][field] = (swingStatus[name][field] === value) ? '' : value;
-  // If marked unlikely, clear lean direction
-  if (field === 'status' && swingStatus[name].status === 'unlikely') {
-    swingStatus[name].leanTo = '';
-  }
+async function setLean(name, lean) {
+  if (!swingStatus[name]) swingStatus[name] = { leanTo: '', note: '' };
+  // Toggle off if tapped again
+  swingStatus[name].leanTo = (swingStatus[name].leanTo === lean) ? '' : lean;
   renderSwing();
-  // Save to sheet
   const s = swingStatus[name];
-  await apiPost({ action: 'setSwing', name, status: s.status, leanTo: s.leanTo, note: s.note || '' });
+  await apiPost({ action: 'setSwing', name, status: 'likely', leanTo: s.leanTo, notes: s.note || '' });
+}
+
+async function setLean(name, lean) {
+  if (!swingStatus[name]) swingStatus[name] = { leanTo: '', note: '' };
+  swingStatus[name].leanTo = (swingStatus[name].leanTo === lean) ? '' : lean;
+  renderSwing();
+  const s = swingStatus[name];
+  await apiPost({ action: 'setSwing', name, status: 'likely', leanTo: s.leanTo, notes: s.note || '' });
+}
+
+async function saveNote(name, note) {
+  if (!swingStatus[name]) swingStatus[name] = { leanTo: '', note: '' };
+  swingStatus[name].note = note;
+  const s = swingStatus[name];
+  await apiPost({ action: 'setSwing', name, status: 'likely', leanTo: s.leanTo || '', notes: note });
 }
 
 function renderSwing() {
   const unknownVoters = votes.filter(v => v.choice === 'Ukn');
-  const likelyRM = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'likely' && swingStatus[v.name].leanTo === 'RM').length;
-  const likelyAZ = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'likely' && swingStatus[v.name].leanTo === 'AZ').length;
-  const likely   = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].status === 'likely').length;
-  const stillTBD = unknownVoters.length - likely;
+  const totalVotes = votes.length;
+  const likelyRM = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].leanTo === 'RM').length;
+  const likelyAZ = unknownVoters.filter(v => swingStatus[v.name] && swingStatus[v.name].leanTo === 'AZ').length;
+  const stillTBD = unknownVoters.length - likelyRM - likelyAZ;
+  const ukPct    = totalVotes ? Math.round(unknownVoters.length / totalVotes * 100) : 0;
 
+  // Top summary boxes
   document.getElementById('swingSummary').innerHTML = `
+    <div class="swing-metric"><div class="swing-metric-label">Unknown votes</div><div class="swing-metric-val" style="color:#ffd60a">${unknownVoters.length}</div><div class="swing-metric-pct">${ukPct}%</div></div>
     <div class="swing-metric"><div class="swing-metric-label">Likely RM</div><div class="swing-metric-val" style="color:#30d158">${likelyRM}</div></div>
     <div class="swing-metric"><div class="swing-metric-label">Likely AZ</div><div class="swing-metric-val" style="color:#ff453a">${likelyAZ}</div></div>
-    <div class="swing-metric"><div class="swing-metric-label">Unknown</div><div class="swing-metric-val" style="color:#ffd60a">${unknownVoters.length}</div></div>
     <div class="swing-metric"><div class="swing-metric-label">Still TBD</div><div class="swing-metric-val" style="color:#8e8e93">${stillTBD}</div></div>`;
 
-  // Projected totals
-  let projRM  = votes.filter(v => v.choice === 'RM' || v.choice === 'DB').length;
-  let projAZ  = votes.filter(v => v.choice === 'AZ').length;
-  let projUkn = 0;
-  unknownVoters.forEach(v => {
-    const s = swingStatus[v.name] || {};
-    if (s.status === 'likely' && s.leanTo === 'RM')      projRM++;
-    else if (s.status === 'likely' && s.leanTo === 'AZ') projAZ++;
-    else projUkn++;
-  });
-
+  // Projected totals: confirmed + likely swings
+  const confirmedRM = votes.filter(v => v.choice === 'RM' || v.choice === 'DB').length;
+  const confirmedAZ = votes.filter(v => v.choice === 'AZ').length;
+  const projRM  = confirmedRM + likelyRM;
+  const projAZ  = confirmedAZ + likelyAZ;
+  const projUkn = stillTBD;
   const projTotal = projRM + projAZ + projUkn;
   const pRM  = projTotal ? Math.round(projRM  / projTotal * 100) : 0;
   const pAZ  = projTotal ? Math.round(projAZ  / projTotal * 100) : 0;
   const pUkn = projTotal ? Math.round(projUkn / projTotal * 100) : 0;
 
   document.getElementById('projGrid').innerHTML = `
-    <div class="proj-metric proj-rm"><div class="proj-metric-label">RM</div><div class="proj-metric-val">${projRM}</div><div class="proj-metric-pct">${pRM}%</div></div>
-    <div class="proj-metric proj-az"><div class="proj-metric-label">AZ</div><div class="proj-metric-val">${projAZ}</div><div class="proj-metric-pct">${pAZ}%</div></div>
-    <div class="proj-metric proj-ukn"><div class="proj-metric-label">Unknown</div><div class="proj-metric-val">${projUkn}</div><div class="proj-metric-pct">${pUkn}%</div></div>`;
+    <div class="proj-metric proj-rm">
+      <div class="proj-metric-label">RM</div>
+      <div class="proj-metric-val">${projRM}</div>
+      <div class="proj-metric-pct">${pRM}%</div>
+      <div style="font-size:10px;margin-top:3px;opacity:0.6">${confirmedRM} confirmed + ${likelyRM} likely</div>
+    </div>
+    <div class="proj-metric proj-az">
+      <div class="proj-metric-label">AZ</div>
+      <div class="proj-metric-val">${projAZ}</div>
+      <div class="proj-metric-pct">${pAZ}%</div>
+      <div style="font-size:10px;margin-top:3px;opacity:0.6">${confirmedAZ} confirmed + ${likelyAZ} likely</div>
+    </div>
+    <div class="proj-metric proj-ukn">
+      <div class="proj-metric-label">Unknown</div>
+      <div class="proj-metric-val">${projUkn}</div>
+      <div class="proj-metric-pct">${pUkn}%</div>
+      <div style="font-size:10px;margin-top:3px;opacity:0.6">still undecided</div>
+    </div>`;
 
+  // Voter list
   const el = document.getElementById('swingList');
   if (!unknownVoters.length) { el.innerHTML = '<div class="empty">No unknown votes yet.</div>'; return; }
 
   const sorted = [...unknownVoters].sort((a,b) => a.name.localeCompare(b.name));
   el.innerHTML = sorted.map(v => {
-    const s = swingStatus[v.name] || { status: '', leanTo: '', note: '' };
-    const isLikely = s.status === 'likely';
+    const s = swingStatus[v.name] || { leanTo: '', note: '' };
     const safeName = v.name.replace(/'/g,"\\'");
-    return `<div class="swing-row">
-      <div style="flex:1">
-        <div class="swing-name">${v.name}</div>
-        ${v.comment ? `<div class="swing-comment">"${v.comment}"</div>` : ''}
-        ${isLikely ? `<div style="display:flex;gap:6px;margin-top:8px">
-          <button class="lean-btn" onclick="setSwing('${safeName}','leanTo','RM')"
-            style="border-color:${s.leanTo==='RM'?'#30d158':'#3a3a3c'};background:${s.leanTo==='RM'?'#1a3d1a':'#2c2c2e'};color:${s.leanTo==='RM'?'#30d158':'#8e8e93'}">
+    return `<div class="swing-row" style="flex-direction:column;align-items:stretch;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1">
+          <div class="swing-name">${v.name}</div>
+          ${v.comment ? `<div class="swing-comment">"${v.comment}"</div>` : ''}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;margin-left:10px">
+          <button class="lean-btn" onclick="setLean('${safeName}','RM')"
+            style="border-color:${s.leanTo==='RM'?'#30d158':'#3a3a3c'};background:${s.leanTo==='RM'?'#1a3d1a':'#2c2c2e'};color:${s.leanTo==='RM'?'#30d158':'#8e8e93'};padding:7px 14px;font-size:13px">
             &#8594; RM
           </button>
-          <button class="lean-btn" onclick="setSwing('${safeName}','leanTo','AZ')"
-            style="border-color:${s.leanTo==='AZ'?'#ff453a':'#3a3a3c'};background:${s.leanTo==='AZ'?'#3d1a1a':'#2c2c2e'};color:${s.leanTo==='AZ'?'#ff6b6b':'#8e8e93'}">
+          <button class="lean-btn" onclick="setLean('${safeName}','AZ')"
+            style="border-color:${s.leanTo==='AZ'?'#ff453a':'#3a3a3c'};background:${s.leanTo==='AZ'?'#3d1a1a':'#2c2c2e'};color:${s.leanTo==='AZ'?'#ff6b6b':'#8e8e93'};padding:7px 14px;font-size:13px">
             &#8594; AZ
           </button>
-        </div>` : ''}
-        <textarea placeholder="Strategy notes..." style="width:100%;margin-top:8px;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:8px;padding:8px 10px;font-size:13px;color:#f0f0f0;font-family:inherit;resize:vertical;min-height:56px;" onblur="saveNote('${safeName}', this.value)">${s.note || ''}</textarea>
+        </div>
       </div>
-      <div class="swing-btns" style="align-self:flex-start;margin-top:2px">
-        <button class="swing-btn ${s.status==='likely'?'likely':''}" onclick="setSwing('${safeName}','status','likely')" title="Likely to swing">&#10003;</button>
-      </div>
+      <textarea placeholder="Strategy notes..." style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:8px;padding:8px 10px;font-size:13px;color:#f0f0f0;font-family:inherit;resize:vertical;min-height:60px;" onblur="saveNote('${safeName}', this.value)">${s.note || ''}</textarea>
     </div>`;
   }).join('');
-}
-
-async function saveNote(name, note) {
-  if (!swingStatus[name]) swingStatus[name] = { status: '', leanTo: '', note: '' };
-  swingStatus[name].note = note;
-  const s = swingStatus[name];
-  await apiPost({ action: 'setSwing', name, status: s.status, leanTo: s.leanTo, note: s.note });
 }
 
 function renderReport() {
