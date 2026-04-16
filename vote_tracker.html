@@ -548,23 +548,28 @@ async function submitFeedback() {
 
 async function removeFeedback(id) {
   if (!confirm('Remove this feedback?')) return;
-  await apiPost({ action:'removeFeedback', id });
-  await loadAll();
+  try {
+    await apiPost({ action:'removeFeedback', id: String(id) });
+    await loadAll();
+    showMsg('feedbackMsg', 'Feedback removed.', 'success');
+  } catch(e) { showMsg('feedbackMsg', 'Error removing. Try again.', 'error'); }
 }
 
 function renderFeedbackList() {
   const el = document.getElementById('feedbackList');
   if (!feedbackData.length) { el.innerHTML='<div class="empty">No feedback recorded yet.</div>'; return; }
   const sorted = [...feedbackData].sort((a,b)=>a.name.localeCompare(b.name));
-  el.innerHTML = sorted.map(f => `
-    <div class="feedback-entry">
+  el.innerHTML = sorted.map(f => {
+    const safeId = String(f.id).replace(/'/g,"\\'");
+    return `<div class="feedback-entry">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div class="feedback-voter">${f.name}</div>
-        <button class="remove-btn" onclick="removeFeedback('${f.id}')">&#215;</button>
+        <button class="remove-btn" onclick="removeFeedback('${safeId}')">&#215;</button>
       </div>
       <div class="feedback-text">${f.feedback}</div>
       <div class="feedback-ts">${f.ts ? new Date(f.ts).toLocaleDateString() : ''}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // AUTO-SAVE for DCL / THS
